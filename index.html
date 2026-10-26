@@ -2011,15 +2011,21 @@ BMI：${document.getElementById('res-bmi').innerText}
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
                 document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師的教育雲端！</span>`;
+                // 🎯 新增：成功彈跳視窗
+                alert("🎉 恭喜！PDF 已成功打包並傳送至老師的教育雲端！");
             }).catch(err => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                alert("上傳至雲端時發生連線問題，請檢查網路或稍後再試。");
+                document.getElementById('result-msg').innerHTML = `<span style="color:#e53e3e;">❌ 上傳失敗，請檢查網路連線。</span>`;
+                // 🎯 新增：失敗彈跳視窗
+                alert("❌ 上傳至雲端時發生連線問題或伺服器錯誤，請檢查網路或稍後再試。");
             });
         }).catch(err => {
             overlay.style.display = 'none';
             if (uploadBtn) uploadBtn.disabled = false;
-            alert("產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
+            document.getElementById('result-msg').innerHTML = `<span style="color:#e53e3e;">❌ 產出 PDF 失敗。</span>`;
+            // 🎯 新增：PDF 產出失敗彈跳視窗
+            alert("❌ 產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
         });
     }
 </script>
