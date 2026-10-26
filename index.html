@@ -1609,14 +1609,21 @@
         const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
-        const opt = {
-            margin:       0.3,
+       const opt = {
+            margin:       [0.2, 0.2, 0.2, 0.2], // 調整四周邊距（上、左、下、右，單位為英吋），數字越小邊框越窄
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            image:        { type: 'jpeg', quality: 0.98 }, // 確保圖片與背景色彩清晰
+            html2canvas:  { 
+                scale: 2,               // 放大倍率，讓文字和圖表更清晰（不跑版）
+                useCORS: true,          // 允許載入外部樣式
+                letterRendering: true 
+            },
+            jsPDF:        { 
+                unit: 'in', 
+                format: 'letter', 
+                orientation: 'portrait' // 強制設定為【直式】(portrait)
+            }
         };
-
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
             
             // ⚠️ 貼上您剛剛從 Google Apps Script 部署取得的「網頁應用程式 URL」
