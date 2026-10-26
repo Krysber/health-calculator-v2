@@ -1939,19 +1939,27 @@ ${reflection}`;
         });
     }
 
-    function submitToGoogleDrive() {
-        // 1. 直接精準抓取班級、座號、姓名
-        const cls = document.getElementById('stu-class').value.trim();
-        const no = document.getElementById('stu-no').value.trim();
-        const name = document.getElementById('stu-name').value.trim();
+   function submitToGoogleDrive() {
+        // 🎯 雙重保險抓取：同時支援多種可能的 ID 名稱，避免抓到 undefined
+        const classEl = document.getElementById('stu-class') || document.getElementById('class');
+        const noEl = document.getElementById('stu-no') || document.getElementById('no') || document.getElementById('student-no');
+        const nameEl = document.getElementById('stu-name') || document.getElementById('name') || document.getElementById('student-name');
+
+        const cls = classEl ? classEl.value.trim() : '';
+        const no = noEl ? noEl.value.trim() : '';
+        const name = nameEl ? nameEl.value.trim() : '';
+
+        // 🔍 在開發者主控台印出抓到的值（您可以按 F12 打開 Console 查看）
+        console.log("偵測到的上傳資料 -> 班級:", cls, "座號:", no, "姓名:", name);
 
         if (!cls || !no || !name) {
-            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行上傳繳交喔！");
+            alert(`⚠️【無法上傳】請先完整填寫基本資料！\n目前抓到的內容：\n- 班級: ${cls || '未填'}\n- 座號: ${no || '未填'}\n- 姓名: ${name || '未填'}`);
             return;
         }
 
         document.getElementById('upload-overlay').style.display = 'flex';
-        document.getElementById('upload-btn').disabled = true;
+        const uploadBtn = document.getElementById('upload-btn');
+        if (uploadBtn) uploadBtn.disabled = true;
         document.getElementById('upload-status-text').innerText = "正在打包 PDF 並傳送至老師雲端...";
 
         // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
@@ -1960,16 +1968,14 @@ ${reflection}`;
         const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
-        
-        // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
-        // 2. 🎯 確保檔名直接在這裡正確組合，不再透過其他未定義變數
+        // 🎯 確保檔名正確組合
         const fileNameStr = `${cls}_${no}_${name}_健康計畫單.pdf`;
 
         const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], 
-            filename:     fileNameStr, // 確保檔名變數正確帶入
+            margin:       [0.4, 0.4, 0.4, 0.4],
+            filename:     fileNameStr,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2,               
@@ -1996,7 +2002,7 @@ ${reflection}`;
                 stuClass: cls,
                 stuNo: no,
                 stuName: name,
-                fileName: fileNameStr, // 傳給後端確保雲端檔名也正確
+                fileName: fileNameStr,
                 summaryText: summary,
                 pdfBase64: pdfBase64
             };
@@ -2011,17 +2017,19 @@ ${reflection}`;
             })
             .then(response => {
                 document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
+                if (uploadBtn) uploadBtn.disabled = false;
                 
                 const msgDiv = document.getElementById('result-msg');
-                msgDiv.style.color = "#276749";
-                msgDiv.innerHTML = "🎉 作業上傳成功！檔案已經安全送達老師的雲端硬碟囉！";
-                alert("🎉 繳交成功！檔案名稱：" + fileNameStr);
+                if (msgDiv) {
+                    msgDiv.style.color = "#276749";
+                    msgDiv.innerHTML = "🎉 作業上傳成功！檔案名稱：" + fileNameStr;
+                }
+                alert("🎉 繳交成功！\n檔案名稱：" + fileNameStr);
             })
             .catch(err => {
                 document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
-                alert("上傳發生錯誤，請再試一次或截圖回報老師：" + err);
+                if (uploadBtn) uploadBtn.disabled = false;
+                alert("上傳發生錯誤，請再試一次：" + err);
             });
         });
     }
