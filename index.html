@@ -1942,7 +1942,7 @@ ${reflection}`;
         const name = document.getElementById('stu-name').value.trim();
 
         if (!cls || !no || !name) {
-            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行下載與上傳繳交喔！");
+            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行上傳繳交喔！");
             return;
         }
 
@@ -1950,7 +1950,7 @@ ${reflection}`;
         overlay.style.display = 'flex';
         const uploadBtn = document.getElementById('upload-btn');
         if (uploadBtn) uploadBtn.disabled = true;
-        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並下載 / 傳送至雲端...";
+        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並上傳至雲端...";
 
         // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
         window.scrollTo(0, 0);
@@ -1989,35 +1989,33 @@ BMI：${document.getElementById('res-bmi').innerText}
             } 
         };
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            overlay.style.display = 'none';
-            if (uploadBtn) uploadBtn.disabled = false;
-            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動打包下載完成！</span>`;
+        // 🎯 核心修正：使用 outputPdf('datauristring') 轉為 Base64 字串透過 fetch 上傳至 Google Apps Script 雲端
+        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfDataUri) {
+            const payload = {
+                className: cls,
+                studentNo: no,
+                studentName: name,
+                summaryText: summary,
+                pdfBase64: pdfDataUri
+            };
 
-            /* 
-              📌 【說明與教學】：如果您要將 PDF 透過 fetch 同步上傳到 Google Apps Script (https://script.google.com/)，
-              請將下方註解打開，並將您的 Apps Script 網址填入下方 fetch('https://script.google.com/...') 中：
-            */
-            
-            const pdfWorker = html2pdf().set(opt).from(element).outputPdf('datauristring');
-            pdfWorker.then(function(pdfDataUri) {
-                const payload = {
-                    className: cls,
-                    studentNo: no,
-                    studentName: name,
-                    summaryText: summary,
-                    pdfBase64: pdfDataUri
-                };
-                fetch('https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).then(() => {
-                    console.log("已傳送至 Google 雲端 Apps Script");
-                });
+            // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
+            const gasUrl = '請在此貼上您的 https://script.google.com/ 網址';
+
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                overlay.style.display = 'none';
+                if (uploadBtn) uploadBtn.disabled = false;
+                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師的教育雲端！</span>`;
+            }).catch(err => {
+                overlay.style.display = 'none';
+                if (uploadBtn) uploadBtn.disabled = false;
+                alert("上傳至雲端時發生連線問題，請檢查網路或稍後再試。");
             });
-            
         }).catch(err => {
             overlay.style.display = 'none';
             if (uploadBtn) uploadBtn.disabled = false;
