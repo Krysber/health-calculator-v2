@@ -315,10 +315,10 @@
                 <label for="goal">計畫健康目標</label>
                 <select id="goal" onchange="updateKgOptions(); calculateAll();">
                     <option value="gain_weight" selected>增加體重（以健康行為為主）</option>
-                    <option value="gain_muscle">增進肌力與肌肉發展（以健康行為為主）</option>
+                    <option value="gain_muscle">增進肌力與肌肉發展</option>
                     <option value="maintain">維持健康與規律生活</option>
-                    <option value="lose_weight">改善生活習慣（不以減重為必達標，聚焦在飲食和運動習慣的調整）</option>
-                    <option value="lose_fat">提升體能與健康飲食（不以減脂為必達標，聚焦在飲食和運動習慣的調整）</option>
+                    <option value="lose_weight">改善生活習慣（不以減重為必達標）</option>
+                    <option value="lose_fat">提升體能與健康飲食</option>
                 </select>
             </div>
             <div class="form-group">
@@ -593,9 +593,9 @@
                 <div class="form-group" style="background:#fffaf0; border:1px dashed var(--nut-highlight); padding:6px; border-radius:6px;">
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="bf-n" onchange="toggleCustomFood(this); onMealChange();">
-                        <option value="無調味綜合堅果" selected>⭐ 無調味綜合堅果 (每日只需1份堅果)</option>
-                        <option value="黑芝麻粉">黑芝麻粉 (每日只需1份堅果)</option>
-                        <option value="無糖花生醬">無糖花生醬 (每日只需1份堅果)</option>
+                        <option value="無調味綜合堅果" selected>⭐ 無調味綜合堅果 (必選堅果)</option>
+                        <option value="黑芝麻粉">黑芝麻粉 (堅果)</option>
+                        <option value="無糖花生醬">無糖花生醬 (堅果)</option>
                         <option value="烹調植物油">煎蛋烹調植物油 (油脂)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
@@ -751,7 +751,7 @@
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="lu-n" onchange="toggleCustomFood(this); onMealChange();">
                         <option value="烹調植物油" selected>正餐烹調植物油 (油脂)</option>
-                        <option value="堅果隨身包">堅果隨身包 (每日只需1份堅果)</option>
+                        <option value="堅果隨身包">堅果隨身包 (堅果)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
                     </select>
@@ -900,7 +900,7 @@
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="dn-n" onchange="toggleCustomFood(this); onMealChange();">
                         <option value="烹調植物油" selected>正餐烹調植物油 (油脂)</option>
-                        <option value="無調味堅果">無調味堅果 (每日只需1份堅果)</option>
+                        <option value="無調味堅果">無調味堅果 (堅果)</option>
                         <option value="橄欖油涼拌">橄欖油涼拌 (油脂)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
@@ -1043,7 +1043,7 @@
                 <div class="form-group" style="background:#fffaf0; border:1px dashed var(--nut-highlight); padding:6px; border-radius:6px;">
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="sn-n" onchange="toggleCustomFood(this); onMealChange();">
-                        <option value="綜合堅果" selected>綜合堅果 (每日只需1份堅果)</option>
+                        <option value="綜合堅果" selected>綜合堅果 (1小包)</option>
                         <option value="無調味杏仁果">無調味杏仁果 (10顆)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
@@ -1937,33 +1937,90 @@ ${reflection}`;
     }
 
     function submitToGoogleDrive() {
-        const stuClass = document.getElementById('stu-class').value;
-        const stuNo = document.getElementById('stu-no').value;
-        const stuName = document.getElementById('stu-name').value;
+        const cls = document.getElementById('stu-class').value.trim();
+        const no = document.getElementById('stu-no').value.trim();
+        const name = document.getElementById('stu-name').value.trim();
 
-        if (!stuClass || !stuNo || !stuName) {
-            alert("請先填寫頂部的「班級」、「座號」與「姓名」欄位，才能打包繳交作業！");
+        if (!cls || !no || !name) {
+            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行下載與上傳繳交喔！");
             return;
         }
 
         const overlay = document.getElementById('upload-overlay');
         overlay.style.display = 'flex';
+        const uploadBtn = document.getElementById('upload-btn');
+        if (uploadBtn) uploadBtn.disabled = true;
+        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並下載 / 傳送至雲端...";
+
+        // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
+        window.scrollTo(0, 0);
+
+        const summary = `班級：${cls} | 座號：${no} | 姓名：${name}
+BMI：${document.getElementById('res-bmi').innerText}
+飲食目標：${document.getElementById('custom-diet-cal').value} kcal
+目標飲水：${document.getElementById('water-target').value} ml
+承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
+        
+        // 確保列印/轉檔時背景為純白，避免透明導致空白頁
+        element.style.backgroundColor = "#ffffff";
+
+        // 優化版：精準控制分頁與防切斷的 PDF 設定參數
         const opt = {
-            margin:       [10, 10, 10, 10],
-            filename:     `${stuClass}_${stuNo}_${stuName}_健康計畫單.pdf`,
+            margin:       [0.4, 0.4, 0.4, 0.4], // 四周維持適當邊距 (吋)
+            filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 1.5, useCORS: true, letterRendering: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: ['css', 'legacy'] }
+            html2canvas:  { 
+                scale: 2,                 
+                useCORS: true,          
+                letterRendering: true,
+                windowWidth: document.documentElement.offsetWidth 
+            },
+            jsPDF:        { 
+                unit: 'in', 
+                format: 'letter', 
+                orientation: 'portrait' 
+            },
+            // 🎯 關鍵修正：透過 CSS 選擇器強制保護大標題、卡片與表格不被斷開
+            pagebreak:    { 
+                mode: ['css', 'legacy'], 
+                avoid: ['.section-card', 'table', '.meal-box', 'tr', 'h2', 'h3'] 
+            } 
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
             overlay.style.display = 'none';
-            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動匯出並完成個人健康計畫單封存！</span>`;
+            if (uploadBtn) uploadBtn.disabled = false;
+            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動打包下載完成！</span>`;
+
+            /* 
+              📌 【說明與教學】：如果您要將 PDF 透過 fetch 同步上傳到 Google Apps Script (https://script.google.com/)，
+              請將下方註解打開，並將您的 Apps Script 網址填入下方 fetch('https://script.google.com/...') 中：
+            */
+            /*
+            const pdfWorker = html2pdf().set(opt).from(element).outputPdf('datauristring');
+            pdfWorker.then(function(pdfDataUri) {
+                const payload = {
+                    className: cls,
+                    studentNo: no,
+                    studentName: name,
+                    summaryText: summary,
+                    pdfBase64: pdfDataUri
+                };
+                fetch('請在此貼上您的 https://script.google.com/ 網址', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    console.log("已傳送至 Google 雲端 Apps Script");
+                });
+            });
+            */
         }).catch(err => {
             overlay.style.display = 'none';
+            if (uploadBtn) uploadBtn.disabled = false;
             alert("產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
         });
     }
