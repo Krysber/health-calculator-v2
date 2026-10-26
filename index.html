@@ -1897,10 +1897,13 @@
             Object.keys(data).forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    if (el.type === 'checkbox') {
-                        el.checked = data[id];
-                    } else {
-                        el.value = data[id];
+                    // 🎯 微調：過濾掉 undefined 或字串 "undefined"，避免欄位被汙染
+                    if (data[id] !== undefined && data[id] !== null && data[id] !== "undefined") {
+                        if (el.type === 'checkbox') {
+                            el.checked = data[id];
+                        } else {
+                            el.value = data[id];
+                        }
                     }
                 }
             });
@@ -1940,13 +1943,26 @@ ${reflection}`;
     }
 
     function submitToGoogleDrive() {
-        const cls = document.getElementById('stu-class').value.trim();
-        const no = document.getElementById('stu-no').value.trim();
-        const name = document.getElementById('stu-name').value.trim();
+        // 🎯 微調：確保讀取值乾淨且加上防呆檢查
+        const clsField = document.getElementById('stu-class');
+        const noField = document.getElementById('stu-no');
+        const nameField = document.getElementById('stu-name');
+
+        let cls = clsField ? clsField.value.trim() : '';
+        let no = noField ? noField.value.trim() : '';
+        let name = nameField ? nameField.value.trim() : '';
+
+        if (cls === 'undefined') cls = '';
+        if (no === 'undefined') no = '';
+        if (name === 'undefined') name = '';
+
         const email = document.getElementById('stu-email') ? document.getElementById('stu-email').value.trim() : '';
 
         if (!cls || !no || !name) {
             alert("⚠️【無法上傳】請先完整填寫基本資料中的【班級】、【座號】與【姓名】才能進行作業繳交喔！");
+            if (clsField && cls === '') clsField.value = '';
+            if (noField && no === '') noField.value = '';
+            if (nameField && name === '') nameField.value = '';
             return;
         }
 
@@ -2008,7 +2024,7 @@ BMI：${document.getElementById('res-bmi').innerText}
             };
 
             // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
-            const gasUrl = '請在https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
+            const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
 
             fetch(gasUrl, {
                 method: 'POST',
@@ -2047,3 +2063,4 @@ ${email ? '副本已同時發送至您的信箱：' + email : '（未填寫 Emai
 
 </body>
 </html>
+```[cite: 15]
