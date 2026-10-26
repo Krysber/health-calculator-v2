@@ -2023,19 +2023,39 @@ BMI：${document.getElementById('res-bmi').innerText}
                 pdfBase64: pdfDataUri
             };
 
+           html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfDataUri) {
+            const payload = {
+                className: cls,
+                studentNo: no,
+                studentName: name,
+                studentEmail: email,
+                fileName: fileNameStr,
+                summaryText: summary,
+                pdfBase64: pdfDataUri
+            };
+
             // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
-            const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
+            const gasUrl = '請在此貼上您的 https://script.google.com/ 網址';
 
             fetch(gasUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(() => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
                 document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師雲端${email ? '，並已同步寄送副本至您的信箱 (' + email + ')' : ''}！檔案名稱：${fileNameStr}</span>`;
-                alert(`🎉【上傳成功】
+                alert(`🎉【上傳成功】\n\n您的健康計畫單已成功傳送至老師的雲端！\n檔案名稱：${fileNameStr}\n${email ? '副本已同時發送至您的信箱：' + email : '（未填寫 Email）'}`);
+            }).catch(err => {
+                overlay.style.display = 'none';
+                if (uploadBtn) uploadBtn.disabled = false;
+                alert(`❌【上傳失敗】\n\n連線至雲端伺服器時發生錯誤（原因：${err.message || '網路連線異常'}）。`);
+            });
+        }).catch(err => {
+            overlay.style.display = 'none';
+            if (uploadBtn) uploadBtn.disabled = false;
+            alert(`❌【PDF 產出失敗】\n\n在打包 PDF 時發生問題（原因：${err.message || '未知錯誤'}）。`);
+        });
 
 您的健康計畫單已成功傳送至老師的雲端！
 檔案名稱：${fileNameStr}
