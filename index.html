@@ -318,10 +318,10 @@
                 <label for="goal">計畫健康目標</label>
                 <select id="goal" onchange="updateKgOptions(); calculateAll();">
                     <option value="gain_weight" selected>增加體重（以健康行為為主）</option>
-                    <option value="gain_muscle">增進肌力與肌肉發展</option>
+                    <option value="gain_muscle">增進肌力與肌肉發展（以健康行為為主）</option>
                     <option value="maintain">維持健康與規律生活</option>
                     <option value="lose_weight">改善生活習慣（不以減重為必達標）</option>
-                    <option value="lose_fat">提升體能與健康飲食</option>
+                    <option value="lose_fat">提升體能與健康飲食（不以減脂為必達標）</option>
                 </select>
             </div>
             <div class="form-group">
@@ -2008,7 +2008,7 @@ BMI：${document.getElementById('res-bmi').innerText}
             };
 
             // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
-            const gasUrl = '請在此貼上您的 https://script.google.com/ 網址';
+            const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
 
             fetch(gasUrl, {
                 method: 'POST',
