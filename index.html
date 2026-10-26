@@ -315,10 +315,10 @@
                 <label for="goal">計畫健康目標</label>
                 <select id="goal" onchange="updateKgOptions(); calculateAll();">
                     <option value="gain_weight" selected>增加體重（以健康行為為主）</option>
-                    <option value="gain_muscle">增進肌力與肌肉發展</option>
+                    <option value="gain_muscle">增進肌力與肌肉發展（以健康行為為主）</option>
                     <option value="maintain">維持健康與規律生活</option>
-                    <option value="lose_weight">改善生活習慣（不以減重為必達標）</option>
-                    <option value="lose_fat">提升體能與健康飲食</option>
+                    <option value="lose_weight">改善生活習慣（不以減重為必達標，聚焦在飲食和運動習慣的調整）</option>
+                    <option value="lose_fat">提升體能與健康飲食（不以減脂為必達標，聚焦在飲食和運動習慣的調整）</option>
                 </select>
             </div>
             <div class="form-group">
@@ -593,9 +593,9 @@
                 <div class="form-group" style="background:#fffaf0; border:1px dashed var(--nut-highlight); padding:6px; border-radius:6px;">
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="bf-n" onchange="toggleCustomFood(this); onMealChange();">
-                        <option value="無調味綜合堅果" selected>⭐ 無調味綜合堅果 (必選堅果)</option>
-                        <option value="黑芝麻粉">黑芝麻粉 (堅果)</option>
-                        <option value="無糖花生醬">無糖花生醬 (堅果)</option>
+                        <option value="無調味綜合堅果" selected>⭐ 無調味綜合堅果 (每日只需1份堅果)</option>
+                        <option value="黑芝麻粉">黑芝麻粉 (每日只需1份堅果)</option>
+                        <option value="無糖花生醬">無糖花生醬 (每日只需1份堅果)</option>
                         <option value="烹調植物油">煎蛋烹調植物油 (油脂)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
@@ -751,7 +751,7 @@
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="lu-n" onchange="toggleCustomFood(this); onMealChange();">
                         <option value="烹調植物油" selected>正餐烹調植物油 (油脂)</option>
-                        <option value="堅果隨身包">堅果隨身包 (堅果)</option>
+                        <option value="堅果隨身包">堅果隨身包 (每日只需1份堅果)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
                     </select>
@@ -900,7 +900,7 @@
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="dn-n" onchange="toggleCustomFood(this); onMealChange();">
                         <option value="烹調植物油" selected>正餐烹調植物油 (油脂)</option>
-                        <option value="無調味堅果">無調味堅果 (堅果)</option>
+                        <option value="無調味堅果">無調味堅果 (每日只需1份堅果)</option>
                         <option value="橄欖油涼拌">橄欖油涼拌 (油脂)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
@@ -1043,7 +1043,7 @@
                 <div class="form-group" style="background:#fffaf0; border:1px dashed var(--nut-highlight); padding:6px; border-radius:6px;">
                     <label style="color:#b7791f">🥑 油脂與堅果食物：</label>
                     <select class="meal-select" id="sn-n" onchange="toggleCustomFood(this); onMealChange();">
-                        <option value="綜合堅果" selected>綜合堅果 (1小包)</option>
+                        <option value="綜合堅果" selected>綜合堅果 (每日只需1份堅果)</option>
                         <option value="無調味杏仁果">無調味杏仁果 (10顆)</option>
                         <option value="無">無</option>
                         <option value="custom">✨ 其他 (自訂食物)</option>
