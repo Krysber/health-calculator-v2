@@ -39,17 +39,18 @@
         header h1 { margin: 0 0 8px 0; font-size: 1.7rem; }
         header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
 
-        .section-card {
+       .section-card {
             background: var(--card-bg);
             border-radius: 12px;
             padding: 22px;
             margin-bottom: 22px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
-            page-break-inside: avoid; /* 確保卡片內部不會被硬生生切斷 */
+            page-break-inside: avoid; /* 確保卡片內部不會被切斷 */
             break-inside: avoid;
+            break-before: auto;       /* 讓標題與區塊保持連貫 */
         }
-
+        
         .section-title {
             font-size: 1.25rem;
             color: var(--primary-dark);
@@ -1627,9 +1628,9 @@
         // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
-       // 優化分頁與防切斷的 PDF 設定參數
+       // 優化版：精準控制分頁與防切斷的 PDF 設定參數
         const opt = {
-            margin:       [0.3, 0.3, 0.3, 0.3], // 稍微縮小上下左右邊距 (吋)，爭取更多完整排版空間
+            margin:       [0.4, 0.4, 0.4, 0.4], // 四周維持適當邊距 (吋)
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -1643,10 +1644,10 @@
                 format: 'letter', 
                 orientation: 'portrait' 
             },
-            // 🎯 關鍵：針對元素設定智慧分頁與避免孤行
+            // 🎯 關鍵修正：透過 CSS 選擇器強制保護大標題、卡片與表格不被斷開
             pagebreak:    { 
-                mode: ['avoid-all', 'css', 'legacy'], 
-                avoid: ['.section-card', 'table', '.meal-box', 'tr'] // 強制這些區塊盡量不要在中間被切斷
+                mode: ['css', 'legacy'], 
+                avoid: ['.section-card', 'table', '.meal-box', 'tr', 'h2', 'h3'] 
             } 
         };
 
