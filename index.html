@@ -228,13 +228,16 @@
         <p>該網站僅供健康教育課程所使用和日常所需參考，如有專業的需求請另尋專業醫療人員協助。 設計者/ＯＯＯ</p>
     </header>
 
-    <!-- 0. 學生基本資料 -->
+        <!-- 0. 學生基本資料 -->
     <div class="section-card">
         <h2 class="section-title">🏫 學生學習單基本資料</h2>
-        <div class="grid-4">
+        <div class="grid-3" style="margin-bottom: 12px;">
             <div class="form-group"><label for="stu-class">班級</label><input type="text" id="stu-class" placeholder="例: 901" oninput="saveLocalStorage()"></div>
             <div class="form-group"><label for="stu-no">座號</label><input type="number" id="stu-no" placeholder="例: 05" oninput="saveLocalStorage()"></div>
             <div class="form-group"><label for="stu-name">姓名</label><input type="text" id="stu-name" placeholder="請輸入姓名" oninput="saveLocalStorage()"></div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group"><label for="stu-email">學生電子郵件 (Email，用於接收個人複製本 PDF)</label><input type="email" id="stu-email" placeholder="例: student@std.mail.ntpc.edu.tw" oninput="saveLocalStorage()"></div>
             <div class="form-group"><label for="stu-date">填寫日期</label><input type="date" id="stu-date" onchange="saveLocalStorage()"></div>
         </div>
     </div>
@@ -315,10 +318,10 @@
                 <label for="goal">計畫健康目標</label>
                 <select id="goal" onchange="updateKgOptions(); calculateAll();">
                     <option value="gain_weight" selected>增加體重（以健康行為為主）</option>
-                    <option value="gain_muscle">增進肌力與肌肉發展（以健康行為為主）</option>
+                    <option value="gain_muscle">增進肌力與肌肉發展</option>
                     <option value="maintain">維持健康與規律生活</option>
-                    <option value="lose_weight">改善生活習慣（不以減重為必達標，以改變飲食與運動習慣為主）</option>
-                    <option value="lose_fat">提升體能與健康飲食（不以減脂為必達標，以改變飲食與運動習慣為主）</option>
+                    <option value="lose_weight">改善生活習慣（不以減重為必達標）</option>
+                    <option value="lose_fat">提升體能與健康飲食</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1940,6 +1943,7 @@ ${reflection}`;
         const cls = document.getElementById('stu-class').value.trim();
         const no = document.getElementById('stu-no').value.trim();
         const name = document.getElementById('stu-name').value.trim();
+        const email = document.getElementById('stu-email') ? document.getElementById('stu-email').value.trim() : '';
 
         if (!cls || !no || !name) {
             alert("⚠️【無法上傳】請先完整填寫基本資料中的【班級】、【座號】與【姓名】才能進行作業繳交喔！");
@@ -1950,12 +1954,12 @@ ${reflection}`;
         overlay.style.display = 'flex';
         const uploadBtn = document.getElementById('upload-btn');
         if (uploadBtn) uploadBtn.disabled = true;
-        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並上傳至雲端...";
+        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並上傳至雲端與寄送信件...";
 
         // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
         window.scrollTo(0, 0);
 
-        const summary = `班級：${cls} | 座號：${no} | 姓名：${name}
+        const summary = `班級：${cls} | 座號：${no} | 姓名：${name} | Email：${email || '未填寫'}
 BMI：${document.getElementById('res-bmi').innerText}
 飲食目標：${document.getElementById('custom-diet-cal').value} kcal
 目標飲水：${document.getElementById('water-target').value} ml
@@ -1997,13 +2001,14 @@ BMI：${document.getElementById('res-bmi').innerText}
                 className: cls,
                 studentNo: no,
                 studentName: name,
+                studentEmail: email,
                 fileName: fileNameStr,
                 summaryText: summary,
                 pdfBase64: pdfDataUri
             };
 
             // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
-            const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
+            const gasUrl = '請在此貼上您的 https://script.google.com/ 網址';
 
             fetch(gasUrl, {
                 method: 'POST',
@@ -2013,11 +2018,12 @@ BMI：${document.getElementById('res-bmi').innerText}
             }).then(() => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師的教育雲端！檔案名稱：${fileNameStr}</span>`;
+                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師雲端${email ? '，並已同步寄送副本至您的信箱 (' + email + ')' : ''}！檔案名稱：${fileNameStr}</span>`;
                 alert(`🎉【上傳成功】
 
 您的健康計畫單已成功傳送至老師的雲端！
 檔案名稱：${fileNameStr}
+${email ? '副本已同時發送至您的信箱：' + email : '（未填寫 Email，若需副本請自行備份）'}
 
 請確認畫面下方顯示綠色打勾即完成繳交。`);
             }).catch(err => {
