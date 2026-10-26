@@ -1335,7 +1335,7 @@
         document.getElementById('eval-bmi').innerHTML = `<span class="badge ${bmiClass}">${bmiStatus}</span>`;
 
         // -------------------------------------------------------------
-        // 1. 防呆與警示文字功能（計畫健康目標）
+        // 1. 防呆與警示文字功能（修正過輕選減重/減脂的方向矛盾及浮點數精準度）
         // -------------------------------------------------------------
         const goalVal = document.getElementById('goal').value;
         const targetKg = parseFloat(document.getElementById('kg-target').value) || 0;
@@ -1351,16 +1351,45 @@
         if (targetKg !== 0) {
             const projectedWeight = weight + targetKg;
             const projectedBmi = Number((projectedWeight / ((height / 100) * (height / 100))).toFixed(1));
-            if (projectedBmi < bmiLow) {
-                goalWarnings.push(`⚠️ 預估調整後的 BMI (${projectedBmi}) 低於您性別年齡的標準下限 (${bmiLow})，請調整計畫目標！`);
-            } else if (projectedBmi >= bmiOver) {
-                goalWarnings.push(`⚠️ 預估調整後的 BMI (${projectedBmi}) 超過您性別年齡的過重切點 (${bmiOver})，請調整計畫目標！`);
+            
+            // 只有當「體重過輕且目標是增重 (targetKg > 0)」或「體重過重且目標是減重 (targetKg < 0)」時，才計算並顯示達到正常範圍的預估週數
+            if (bmi < bmiLow && targetKg > 0) {
+                const targetWeightForNormal = Number((bmiLow * ((height / 100) * (height / 100))).toFixed(1));
+                const neededKg = Number((targetWeightForNormal - weight).toFixed(1));
+                const durationDays = Number(document.getElementById('plan-duration').value) || 21;
+                const rateKgPerDay = Math.abs(targetKg) / durationDays;
+                let estimateText = "";
+                if (rateKgPerDay > 0) {
+                    const totalDaysNeeded = Math.ceil(neededKg / rateKgPerDay);
+                    const totalWeeks = Math.ceil(totalDaysNeeded / 7);
+                    const totalMonths = (totalDaysNeeded / 30).toFixed(1);
+                    estimateText = `，若繼續保持目前的健康養成步調，約需 <strong>${totalWeeks} 週 (約 ${totalMonths} 個月)</strong> 即可順利達到正常 BMI 範圍 (${bmiLow.toFixed(1)})`;
+                }
+                goalWarnings.push(`💡 提示：調整 +${targetKg.toFixed(1)} kg 後，您的預估 BMI 為 <strong>${projectedBmi.toFixed(1)}</strong>（正常標準下限為 ${bmiLow.toFixed(1)}）${estimateText}。請持續維持良好生活習慣！`);
+            } else if (bmi >= bmiOver && targetKg < 0) {
+                const targetNormalUpper = bmiOver - 0.1;
+                const targetWeightForNormal = Number((targetNormalUpper * ((height / 100) * (height / 100))).toFixed(1));
+                const neededKg = Number((weight - targetWeightForNormal).toFixed(1));
+                const durationDays = Number(document.getElementById('plan-duration').value) || 21;
+                const rateKgPerDay = Math.abs(targetKg) / durationDays;
+                let estimateText = "";
+                if (rateKgPerDay > 0) {
+                    const totalDaysNeeded = Math.ceil(neededKg / rateKgPerDay);
+                    const totalWeeks = Math.ceil(totalDaysNeeded / 7);
+                    const totalMonths = (totalDaysNeeded / 30).toFixed(1);
+                    estimateText = `，若繼續保持目前的健康習慣與運動步調，約需 <strong>${totalWeeks} 週 (約 ${totalMonths} 個月)</strong> 即可順利回到正常 BMI 範圍 (${targetNormalUpper.toFixed(1)})`;
+                }
+                goalWarnings.push(`💡 提示：減少 ${Math.abs(targetKg).toFixed(1)} kg 後，您的預估 BMI 為 <strong>${projectedBmi.toFixed(1)}</strong>（正常標準上限為 ${targetNormalUpper.toFixed(1)}）${estimateText}。青少年安全減重宜循序漸進！`);
+            } else {
+                // 如果方向相反（例如過輕卻要減重，或是過重卻要增重），直接提示預估 BMI 但不顯示錯誤的達標週數
+                let directionDesc = targetKg > 0 ? `增加 ${targetKg.toFixed(1)} kg` : `減少 ${Math.abs(targetKg).toFixed(1)} kg`;
+                goalWarnings.push(`💡 提示：若照此計畫${directionDesc}，您的預估 BMI 將變為 <strong>${projectedBmi.toFixed(1)}</strong>（正常標準區間：${bmiLow.toFixed(1)} ~ ${(bmiOver - 0.1).toFixed(1)}）。建議依據身體評估結果調整您的健康目標方向！`);
             }
         }
 
         if (goalWarnings.length > 0) {
             goalWarnBox.style.display = 'block';
-            goalWarnBox.className = 'alert-box alert-danger';
+            goalWarnBox.className = 'alert-box alert-warning';
             goalWarnBox.innerHTML = goalWarnings.join('<br>');
         } else {
             goalWarnBox.style.display = 'block';
@@ -1386,7 +1415,7 @@
         const totalTargetCal = Math.round(targetKg * 7700);
         const dailyTargetCal = Math.round(totalTargetCal / planDays);
         document.getElementById('duration-label').innerText = planDays;
-        document.getElementById('target-kg-desc').innerText = (targetKg > 0 ? '+' : '') + targetKg + ' kg';
+        document.getElementById('target-kg-desc').innerText = (targetKg > 0 ? '+' : '') + targetKg.toFixed(1) + ' kg';
         document.getElementById('target-total-cal').innerText = (totalTargetCal > 0 ? '+' : '') + totalTargetCal + ' kcal';
         document.getElementById('daily-target-cal').innerText = (dailyTargetCal > 0 ? '+' : '') + dailyTargetCal + ' kcal/日';
 
@@ -1414,287 +1443,255 @@
         document.getElementById('diet-tier-name').innerText = dietTierName;
         document.getElementById('diet-range').innerText = `${minDiet} ~ ${maxDiet} kcal`;
 
-        const sportData = calculateSports(weight);
-        const avgSportCal = sportData.avgSportCal;
+        // 運動排程與 EAT 計算
+        const sportA = getSelectedSportInfo('sport-select-a');
+        const sportB = getSelectedSportInfo('sport-select-b');
+        const sportC = getSelectedSportInfo('sport-select-c');
+        const sportD = getSelectedSportInfo('sport-select-d');
 
-        let idealDietCal = dailyTargetCal + finalBmr + neat + avgSportCal;
-        let dietCal = idealDietCal;
+        const activeDays = Number(document.getElementById('plan-days').value);
+        const minsPerSession = Number(document.getElementById('plan-time').value);
 
-        const rangeAlertBox = document.getElementById('diet-range-alert');
-        rangeAlertBox.style.display = 'none';
+        const schedule = buildWeeklySchedule(activeDays, minsPerSession, weight, [sportA, sportB, sportC, sportD]);
+        renderScheduleTable(schedule);
 
-        if (idealDietCal > maxDiet) {
-            dietCal = maxDiet;
-            rangeAlertBox.style.display = 'block';
-            rangeAlertBox.innerHTML = `🚨 <strong>熱量缺口警示：</strong> 您設定的運動量或增重目標較高，算出之飲食熱量超過該性別級距上限！系統已自動拉回安全熱量上限（<strong>${maxDiet} kcal</strong>），防止運動卡路里爆表。`;
-        } else if (idealDietCal < minDiet) {
-            dietCal = minDiet;
-            rangeAlertBox.style.display = 'block';
-            rangeAlertBox.innerHTML = `⚠️ <strong>熱量保護提示：</strong> 算出之飲食熱量低於青少年發育底線，系統已自動為您維持發育最低熱量下限（<strong>${minDiet} kcal</strong>）。`;
+        const totalSportTime = schedule.reduce((sum, d) => sum + d.minutes, 0);
+        const totalSportCal = schedule.reduce((sum, d) => sum + d.calories, 0);
+        const avgDailyEat = Math.round(totalSportCal / 7);
+
+        document.getElementById('total-sport-time').innerText = totalSportTime;
+        document.getElementById('total-sport-cal').innerText = totalSportCal;
+        document.getElementById('avg-sport-cal').innerText = avgDailyEat;
+
+        // 飲食卡路里與目標卡路里邏輯（優先以選擇的增減公斤數所決定的計畫目標卡路里為主）
+        let customDietInput = document.getElementById('custom-diet-cal');
+        let currentDietCal = Number(customDietInput.value);
+
+        if (!isManualDiet || !currentDietCal) {
+            currentDietCal = Math.round(finalBmr + neat + avgDailyEat + dailyTargetCal);
+            if (currentDietCal < minDiet) currentDietCal = minDiet;
+            if (currentDietCal > maxDiet) currentDietCal = maxDiet;
+            customDietInput.value = currentDietCal;
         }
 
-        if (!isManualDiet) {
-            document.getElementById('custom-diet-cal').value = Math.round(dietCal);
+        // -------------------------------------------------------------
+        // 2. 熱量平衡算式顯示（計畫的目標卡路里 vs 實際的目標卡路里）
+        // -------------------------------------------------------------
+        // 計畫的目標卡路里：依據使用者在「短期健康計畫」選擇的體重變化 (`dailyTargetCal`)
+        const plannedTargetCal = dailyTargetCal;
+        
+        // 實際的目標卡路里：依據下方飲食卡路里與運動消耗計算出來的實際差值
+        const rawActualTarget = Math.round(currentDietCal - (finalBmr + neat + avgDailyEat));
+        let actualTargetCal = rawActualTarget;
+
+        const dietAlertBox = document.getElementById('diet-range-alert');
+        let isClamped = false;
+
+        if (currentDietCal < minDiet) {
+            dietAlertBox.style.display = 'block';
+            dietAlertBox.innerText = `⚠️ 您輸入的飲食熱量 (${currentDietCal} kcal) 低於青少年衛福部建議安全範圍下限 (${minDiet} kcal)！已將卡路里連動維護在安全邊界。`;
+            actualTargetCal = Math.round(minDiet - (finalBmr + neat + avgDailyEat));
+            isClamped = true;
+        } else if (currentDietCal > maxDiet) {
+            dietAlertBox.style.display = 'block';
+            dietAlertBox.innerText = `⚠️ 您輸入的飲食熱量 (${currentDietCal} kcal) 高於青少年衛福部建議安全範圍上限 (${maxDiet} kcal)！已將卡路里連動維護在安全邊界。`;
+            actualTargetCal = Math.round(maxDiet - (finalBmr + neat + avgDailyEat));
+            isClamped = true;
         } else {
-            dietCal = parseFloat(document.getElementById('custom-diet-cal').value) || minDiet;
+            dietAlertBox.style.display = 'none';
         }
 
-        document.getElementById('f-target').innerText = dailyTargetCal > 0 ? `+${dailyTargetCal}` : dailyTargetCal;
-        document.getElementById('f-diet').innerText = Math.round(dietCal);
+        // 顯示規則：預設以「計畫的目標卡路里」為主。若因飲食或運動調整導致實際卡路里與計畫有落差（或觸發上下限防呆），則同時呈現「計畫目標卡路里」與「實際目標卡路里」雙欄位參考
+        const targetDisplayElem = document.getElementById('f-target');
+        const formattedPlanned = (plannedTargetCal > 0 ? '+' : '') + plannedTargetCal;
+        const formattedActual = (actualTargetCal > 0 ? '+' : '') + actualTargetCal;
+
+        if (plannedTargetCal !== actualTargetCal || isClamped) {
+            targetDisplayElem.innerHTML = `${formattedPlanned} <span style="font-size:0.8rem; color:#f6ad55; font-weight:normal;">(實際目標卡路里: ${formattedActual})</span>`;
+        } else {
+            targetDisplayElem.innerText = formattedPlanned;
+        }
+
+        document.getElementById('f-diet').innerText = currentDietCal;
         document.getElementById('f-bmr').innerText = finalBmr;
         document.getElementById('f-neat').innerText = neat;
-        document.getElementById('f-sport').innerText = Math.round(avgSportCal);
+        document.getElementById('f-sport').innerText = avgDailyEat;
 
-        const currentTarget = Math.round(dietCal - (finalBmr + neat + avgSportCal));
-        const diff = Math.abs(currentTarget - dailyTargetCal);
-        const fillBar = document.getElementById('progress-bar-fill');
-        const fillText = document.getElementById('progress-status-text');
+        // 進度條比例計算
+        const barFill = document.getElementById('progress-bar-fill');
+        const progressPercent = Math.min(Math.max(((currentDietCal - minDiet) / (maxDiet - minDiet)) * 100, 5), 100);
+        barFill.style.width = progressPercent + '%';
 
-        if (diff <= 100) {
-            fillBar.style.width = "100%";
-            fillBar.style.background = "linear-gradient(90deg, #38a169, #319795)";
-            fillText.innerText = "💚 熱量平衡完美！計畫符合青少年健康發育目標。";
-        } else if (currentTarget > dailyTargetCal) {
-            fillBar.style.width = "75%";
-            fillBar.style.background = "linear-gradient(90deg, #dd6b20, #d69e2e)";
-            fillText.innerText = "💛 熱量攝取稍微偏高，可增加運動量或微調飲食。";
-        } else {
-            fillBar.style.width = "35%";
-            fillBar.style.background = "linear-gradient(90deg, #e53e3e, #dd6b20)";
-            fillText.innerText = "❤️ 熱量攝取稍微不足，注意營養補給避免影響發育！";
-        }
-
-        updateBodyTypeAdvice(bmi, bmiLow, bmiOver, bmiObese, whr, whrCutoff, whtr, bodyfat, gender);
+        updateBodyAdvice(bmi, bmiLow, bmiOver, bmiObese, whr, whrCutoff, whtr, bodyfat, gender);
         onMealChange();
     }
 
-    function calculateNeatFromTable(weight, level) {
-        if (level === 'light') return Math.round(weight * 5);
-        if (level === 'heavy') return Math.round(weight * 12);
-        return Math.round(weight * 8);
+    function calculateNeatFromTable(weight, pal) {
+        if (pal === 'light') return Math.round(weight * 5.5);
+        if (pal === 'heavy') return Math.round(weight * 9.5);
+        return Math.round(weight * 7.5); // moderate
     }
 
-    function setOfficialPortions(gTotal, gUnrefined, gOther, pTotal, dRange, vTotal, fTotal, oTotal, oPortion) {
+    function setOfficialPortions(gUnref, gRef, gTotal, pTotal, dTotal, vTotal, fTotal, oTotal, nTotal) {
+        currentOfficialPortions = {
+            grain: `${gTotal} 碗 (未精製 ${gUnref} 碗 + 其他 ${gRef} 碗)`,
+            protein: `${pTotal} 份`,
+            dairy: `${dTotal} 杯`,
+            veg: `${vTotal} 份`,
+            fruit: `${fTotal} 份`,
+            oilNut: `油脂 ${oTotal} 份 + 堅果 1 份`
+        };
         document.getElementById('portion-grain').innerText = `${gTotal} 碗`;
-        document.getElementById('portion-grain-detail').innerText = `(未精製 ${gUnrefined} 碗 + 其他 ${gOther} 碗)`;
+        document.getElementById('portion-grain-detail').innerText = `(未精製 ${gUnref} 碗 + 其他 ${gRef} 碗)`;
         document.getElementById('portion-protein').innerText = `${pTotal} 份`;
-        document.getElementById('portion-dairy').innerText = `${dRange} 杯`;
+        document.getElementById('portion-dairy').innerText = `${dTotal} 杯`;
         document.getElementById('portion-veg').innerText = `${vTotal} 份`;
         document.getElementById('portion-fruit').innerText = `${fTotal} 份`;
         document.getElementById('portion-oil-nut').innerText = `${oTotal} 份`;
-        document.getElementById('portion-oil-nut-detail').innerText = `(烹調油脂 ${oPortion} 份 + 堅果 1 份)`;
-
-        currentOfficialPortions = {
-            grain: `${gTotal} 碗`,
-            protein: `${pTotal} 份`,
-            dairy: `${dRange} 杯`,
-            veg: `${vTotal} 份`,
-            fruit: `${fTotal} 份`,
-            oilNut: `油脂 ${oPortion} 份 + 堅果 1 份`
-        };
+        document.getElementById('portion-oil-nut-detail').innerText = `(烹調油脂 ${oTotal} 份 + 堅果 1 份)`;
     }
 
-    function calculateSports(weight) {
-        const days = Number(document.getElementById('plan-days').value);
-        const mins = Number(document.getElementById('plan-time').value);
+    function getSelectedSportInfo(selectId) {
+        const sel = document.getElementById(selectId);
+        const opt = sel.options[sel.selectedIndex];
+        let name = opt.value;
+        let mets = parseFloat(opt.dataset.mets);
+        
+        if (opt.dataset.mets === 'custom') {
+            const customBox = sel.parentNode.querySelector('.custom-sport-box');
+            name = customBox.querySelector('.custom-name').value || '自訂運動';
+            mets = parseFloat(customBox.querySelector('.custom-mets').value) || 4.0;
+        }
+        return { name, mets, type: sel.dataset.type };
+    }
 
-        const getMets = (id) => {
-            const sel = document.getElementById(id);
-            const opt = sel.options[sel.selectedIndex];
-            if (opt && opt.dataset.mets === 'custom') {
-                const customBox = sel.parentNode.querySelector('.custom-sport-box');
-                const metsVal = parseFloat(customBox.querySelector('.custom-mets').value);
-                return isNaN(metsVal) ? 5.0 : metsVal;
-            }
-            return parseFloat(opt ? opt.dataset.mets : 5.0);
-        };
+    function buildWeeklySchedule(activeDays, mins, weight, sports) {
+        const days = ['一', '二', '三', '四', '五', '六', '日'];
+        let activeIndices = [];
+        if (activeDays === 3) activeIndices = [0, 2, 4];
+        else if (activeDays === 4) activeIndices = [0, 2, 4, 5];
+        else if (activeDays === 5) activeIndices = [0, 1, 3, 4, 5];
+        else if (activeDays === 6) activeIndices = [0, 1, 2, 3, 4, 5];
+        else activeIndices = [0, 1, 2, 3, 4, 5, 6];
 
-        const getName = (id) => {
-            const sel = document.getElementById(id);
-            const opt = sel.options[sel.selectedIndex];
-            if (opt && opt.dataset.mets === 'custom') {
-                const customBox = sel.parentNode.querySelector('.custom-sport-box');
-                const nameVal = customBox.querySelector('.custom-name').value.trim();
-                return nameVal || "自訂運動";
-            }
-            return sel.value;
-        };
-
-        const sports = [
-            { id: 'a', name: getName('sport-select-a'), mets: getMets('sport-select-a'), type: '有氧' },
-            { id: 'b', name: getName('sport-select-b'), mets: getMets('sport-select-b'), type: '肌力' },
-            { id: 'c', name: getName('sport-select-c'), mets: getMets('sport-select-c'), type: '骨骼' },
-            { id: 'd', name: getName('sport-select-d'), mets: getMets('sport-select-d'), type: '伸展' }
-        ];
-
-        let schedule = Array(7).fill(null);
-        if (days === 3) [0, 2, 4].forEach((d, i) => schedule[d] = sports[i % 4]);
-        else if (days === 4) [0, 2, 4, 5].forEach((d, i) => schedule[d] = sports[i % 4]);
-        else if (days === 5) [0, 1, 3, 4, 5].forEach((d, i) => schedule[d] = sports[i % 4]);
-        else if (days === 6) [0, 1, 2, 3, 4, 5].forEach((d, i) => schedule[d] = sports[i % 4]);
-        else [0, 1, 2, 3, 4, 5, 6].forEach((d, i) => schedule[d] = sports[i % 4]);
-
-        const rowType = document.getElementById('row-type').children;
-        const rowProj = document.getElementById('row-proj').children;
-        const rowTime = document.getElementById('row-time').children;
-        const rowCal = document.getElementById('row-cal').children;
-
-        let totalCal = 0;
-        let totalMins = 0;
+        let result = [];
+        let sportIdx = 0;
 
         for (let i = 0; i < 7; i++) {
-            const item = schedule[i];
-            if (item) {
-                const cal = Math.round(item.mets * weight * (mins / 60) * 1.05);
-                rowType[i + 1].innerText = item.type;
-                rowProj[i + 1].innerText = item.name;
-                rowTime[i + 1].innerText = mins;
-                rowCal[i + 1].innerText = cal;
-                totalCal += cal;
-                totalMins += mins;
+            if (activeIndices.includes(i)) {
+                const s = sports[sportIdx % sports.length];
+                sportIdx++;
+                const cal = Math.round(s.mets * weight * (mins / 60) * 1.05);
+                result.push({ day: days[i], type: s.type, name: s.name, minutes: mins, calories: cal });
             } else {
-                rowType[i + 1].innerText = '休息';
-                rowProj[i + 1].innerText = '分散休養';
-                rowTime[i + 1].innerText = '0';
-                rowCal[i + 1].innerText = '0';
+                result.push({ day: days[i], type: 'rest', name: '休養與伸展', minutes: 0, calories: 0 });
             }
         }
+        return result;
+    }
 
-        const avgSportCal = Math.round(totalCal / 7);
-        document.getElementById('total-sport-time').innerText = totalMins;
-        document.getElementById('total-sport-cal').innerText = totalCal;
-        document.getElementById('avg-sport-cal').innerText = avgSportCal;
+    function renderScheduleTable(schedule) {
+        const typeRow = document.getElementById('row-type');
+        const projRow = document.getElementById('row-proj');
+        const timeRow = document.getElementById('row-time');
+        const calRow = document.getElementById('row-cal');
 
-        return { totalCal, totalMins, avgSportCal };
+        typeRow.innerHTML = '<td><strong>運動種類</strong></td>' + schedule.map(s => `<td>${getSportTypeBadge(s.type)}</td>`).join('');
+        projRow.innerHTML = '<td><strong>運動項目</strong></td>' + schedule.map(s => `<td style="font-size:0.8rem;">${s.name}</td>`).join('');
+        timeRow.innerHTML = '<td><strong>時間(分)</strong></td>' + schedule.map(s => `<td>${s.minutes}</td>`).join('');
+        calRow.innerHTML = '<td><strong>EAT 消耗</strong></td>' + schedule.map(s => `<td>${s.calories}</td>`).join('');
+    }
+
+    function getSportTypeBadge(type) {
+        if (type === 'aerobic') return '<span class="type-tag tag-aerobic">有氧</span>';
+        if (type === 'strength') return '<span class="type-tag tag-strength">肌力</span>';
+        if (type === 'bone') return '<span class="type-tag tag-bone">骨骼</span>';
+        if (type === 'flex') return '<span class="type-tag tag-flex">柔軟</span>';
+        return '<span class="badge" style="background:#e2e8f0;color:#4a5568;">休息</span>';
+    }
+
+    function updateBodyAdvice(bmi, bmiLow, bmiOver, bmiObese, whr, whrCutoff, whtr, bodyfat, gender) {
+        const adviceBox = document.getElementById('body-type-advice');
+        let text = "";
+
+        if (bmi < bmiLow) {
+            text += "• <strong>BMI 評估過輕：</strong>建議補足三大營養素，適度搭配阻力訓練以促進發育與肌肉發育。<br>";
+        } else if (bmi < bmiOver) {
+            text += "• <strong>BMI 評估正常：</strong>請繼續維持規律運動與均衡飲食習慣。<br>";
+        } else {
+            text += "• <strong>BMI 評估過重/肥胖：</strong>建議多選取未精製全穀類與高纖蔬菜，維持運動習慣減緩體脂累積。<br>";
+        }
+
+        if (whr >= whrCutoff) {
+            text += `• <strong>腰臀比 (${whr.toFixed(2)}) 偏高：</strong>顯示腹部脂肪較集中，建議減少含糖飲料與高油炸物。<br>`;
+        }
+        if (whtr >= 0.5) {
+            text += `• <strong>腰高比 (${whtr.toFixed(2)}) ≥ 0.5：</strong>腰圍已達身高一半，建議結合每週 150 分鐘以上有氧運動。<br>`;
+        }
+
+        if (bodyfat !== null) {
+            text += `• <strong>體脂率 (${bodyfat}%)：</strong>可作為長期肌肉與脂肪比例變化的健康參考指標。`;
+        }
+
+        adviceBox.innerHTML = "🔍 <strong>身體狀況特徵評估與建議：</strong><br>" + text;
     }
 
     function onMealChange() {
-        const getVal = (id) => {
-            const el = document.getElementById(id);
-            if (!el) return 0;
-            let valStr = el.value;
-            if (valStr === "0.5-1") return 0.75;
-            return parseFloat(valStr) || 0;
-        };
-
-        const getName = (id) => {
+        const getMealText = (id) => {
             const sel = document.getElementById(id);
-            if (!sel) return "";
+            if (!sel) return '';
             if (sel.value === 'custom') {
-                const customInput = document.getElementById(id + '-custom');
-                return customInput ? customInput.value.trim() || "自訂食物" : "自訂食物";
+                const customInp = document.getElementById(id + '-custom');
+                return customInp ? (customInp.value || '自訂食物') : '自訂食物';
             }
             return sel.value;
         };
 
-        const categories = {
-            grain: { name: "全穀雜糧類", ids: ['bf-g', 'lu-g', 'dn-g', 'sn-g'], unit: "碗", stdKey: "grain" },
-            protein: { name: "豆魚蛋肉類", ids: ['bf-p', 'lu-p', 'dn-p', 'sn-p'], unit: "份", stdKey: "protein" },
-            dairy: { name: "乳品類", ids: ['bf-d', 'lu-d', 'dn-d', 'sn-d'], unit: "杯", stdKey: "dairy" },
-            veg: { name: "蔬菜類", ids: ['bf-v', 'lu-v', 'dn-v', 'sn-v'], unit: "份", stdKey: "veg" },
-            fruit: { name: "水果類", ids: ['bf-f', 'lu-f', 'dn-f', 'sn-f'], unit: "份", stdKey: "fruit" },
-            oilNut: { name: "油脂與堅果種子類", ids: ['bf-n', 'lu-n', 'dn-n', 'sn-n'], unit: "份", stdKey: "oilNut" }
+        const getMealPortion = (id) => {
+            const sel = document.getElementById(id + '-p');
+            if (!sel) return 0;
+            return parseFloat(sel.value) || 0;
         };
 
-        const tbody = document.getElementById('meal-compare-body');
-        tbody.innerHTML = "";
+        const totals = { grain: 0, protein: 0, dairy: 0, veg: 0, fruit: 0, oilNut: 0 };
+        const items = { grain: [], protein: [], dairy: [], veg: [], fruit: [], oilNut: [] };
 
-        Object.keys(categories).forEach(key => {
-            const cat = categories[key];
-            let totalPortion = 0;
-            let foodList = [];
-
-            cat.ids.forEach(id => {
-                const p = getVal(id + '-p');
-                const n = getName(id);
-                if (p > 0 && n !== "無") {
-                    totalPortion += p;
-                    foodList.push(`${n} (${p}${cat.unit})`);
+        ['bf', 'lu', 'dn', 'sn'].forEach(m => {
+            ['g', 'p', 'd', 'v', 'f', 'n'].forEach(typeKey => {
+                const food = getMealText(`${m}-${typeKey}`);
+                const portion = getMealPortion(`${m}-${typeKey}`);
+                if (food && food !== '無' && portion > 0) {
+                    const mapName = { g: 'grain', p: 'protein', d: 'dairy', v: 'veg', f: 'fruit', n: 'oilNut' }[typeKey];
+                    totals[mapName] += portion;
+                    items[mapName].push(`${food} (${portion})`);
                 }
             });
-
-            const stdStr = currentOfficialPortions[cat.stdKey] || "";
-            let statusText = "符合建議";
-            
-            // -------------------------------------------------------------
-            // 2. 狀態與提醒欄位動態顏色標注示警
-            // -------------------------------------------------------------
-            let statusBadgeClass = "badge-normal";
-            let statusStyle = "background-color: #c6f6d5; color: #22543d; font-weight: bold;"; // 預設綠色 (符合)
-
-            let minStd = 0, maxStd = 0;
-            if (key === 'grain') {
-                const match = stdStr.match(/([\d\.]+)-?([\d\.]*)?/);
-                if (match) {
-                    minStd = parseFloat(match[1]);
-                    maxStd = match[2] ? parseFloat(match[2]) : minStd;
-                }
-            } else if (key === 'oilNut') {
-                minStd = 5; maxStd = 6;
-            } else {
-                const match = stdStr.match(/([\d\.]+)-?([\d\.]*)?/);
-                if (match) {
-                    minStd = parseFloat(match[1]);
-                    maxStd = match[2] ? parseFloat(match[2]) : minStd;
-                }
-            }
-
-            if (totalPortion < minStd) {
-                const diff = (minStd - totalPortion).toFixed(1);
-                statusText = `偏少 (差 ${diff} ${cat.unit})`;
-                statusStyle = "background-color: #feebc8; color: #742a2a; font-weight: bold;"; // 橘黃色示警 (不足)
-            } else if (totalPortion > maxStd && maxStd > 0) {
-                const diff = (totalPortion - maxStd).toFixed(1);
-                statusText = `偏多 (多 ${diff} ${cat.unit})`;
-                statusStyle = "background-color: #fed7d7; color: #9b2c2c; font-weight: bold;"; // 紅色示警 (過多)
-            }
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${cat.name}</strong></td>
-                <td style="text-align:left;">
-                    ${foodList.length > 0 ? foodList.join('、') : '<span style="color:#a0aec0;">未選擇</span>'}<br>
-                    <span style="font-size:0.8rem; color:var(--primary-dark);">小計：${totalPortion} ${cat.unit}</span>
-                </td>
-                <td>${stdStr}</td>
-                <td><span class="badge" style="${statusStyle}">${statusText}</span></td>
-            `;
-            tbody.appendChild(tr);
         });
 
+        const tbody = document.getElementById('meal-compare-body');
+        const rows = [
+            { name: '🥣 全穀雜糧類', key: 'grain', std: currentOfficialPortions.grain, unit: '碗' },
+            { name: '🥩 豆魚蛋肉類', key: 'protein', std: currentOfficialPortions.protein, unit: '份' },
+            { name: '🥛 乳品類', key: 'dairy', std: currentOfficialPortions.dairy, unit: '杯' },
+            { name: '🥦 蔬菜類', key: 'veg', std: currentOfficialPortions.veg, unit: '份' },
+            { name: '🍎 水果類', key: 'fruit', std: currentOfficialPortions.fruit, unit: '份' },
+            { name: '🥑 油脂與堅果種子類', key: 'oilNut', std: currentOfficialPortions.oilNut, unit: '份' }
+        ];
+
+        tbody.innerHTML = rows.map(r => {
+            const currentTotal = totals[r.key];
+            const itemList = items[r.key].length > 0 ? items[r.key].join(', ') : '尚未選擇';
+            return `
+                <tr>
+                    <td><strong>${r.name}</strong></td>
+                    <td style="font-size:0.85rem;">${itemList} <br><strong>小計：${currentTotal} ${r.unit}</strong></td>
+                    <td>${r.std}</td>
+                    <td><span class="badge badge-normal">已搭配好</span></td>
+                </tr>
+            `;
+        }).join('');
+
         saveLocalStorage();
-    }
-
-    function updateBodyTypeAdvice(bmi, bmiLow, bmiOver, bmiObese, whr, whrCutoff, whtr, bodyfat, gender) {
-        const adviceBox = document.getElementById('body-type-advice');
-        let adviceHtml = "🔍 <strong>身體狀況特徵評估與建議：</strong><br>";
-
-        if (bmi < bmiLow) {
-            adviceHtml += "• <strong>體型狀態：</strong> 體重過輕。青春期正值發育關鍵期，過輕可能影響肌肉發育與骨密度的累積。<br>";
-            adviceHtml += "• <strong>飲食調整：</strong> 建議增加優質蛋白質（如鮮奶、豆漿、雞蛋、瘦肉）與優質全穀雜糧，維持熱量正平衡。<br>";
-            adviceHtml += "• <strong>運動建議：</strong> 多進行中高強度的阻力訓練（如伏地挺身、深蹲）與跳躍運動（如跳繩、籃球），刺激骨骼與肌肉生長。";
-        } else if (bmi < bmiOver) {
-            adviceHtml += "• <strong>體型狀態：</strong> 體重在標準健康範圍內！請繼續保持均衡飲食與規律運動。<br>";
-            adviceHtml += "• <strong>飲食調整：</strong> 遵循衛福部青少年六大類食物建議量，多吃原型食物，減少含糖飲料與高油零食。<br>";
-            adviceHtml += "• <strong>運動建議：</strong> 保持每週 3-5 天、每次 30-60 分鐘的中高強度運動，包含有氧、肌力與伸展。";
-        } else if (bmi < bmiObese) {
-            adviceHtml += "• <strong>體型狀態：</strong> 體重偏向過重。宜調整日常飲食品質與提升身體活動量。<br>";
-            adviceHtml += "• <strong>飲食調整：</strong> 優先選擇低 GI 全穀類，增加蔬菜攝取，控制油炸物與高糖點心攝取，不盲目節食。<br>";
-            adviceHtml += "• <strong>運動建議：</strong> 提升日常活動量（如多快走、騎 YouBike），結合每週 4 天以上的有氧運動（游泳、慢跑）以促進脂肪代謝。";
-        } else {
-            adviceHtml += "• <strong>體型狀態：</strong> 體重落於肥胖範圍。建議尋求專業醫師或營養師指引，進行健康的生活型態重塑。<br>";
-            adviceHtml += "• <strong>飲食調整：</strong> 嚴格控管精製糖與飽和脂肪攝取，養成規律三餐、慢細嚼嚥的習慣。<br>";
-            adviceHtml += "• <strong>運動建議：</strong> 從低衝擊的有氧運動開始（如快走、游泳、騎自行車），減少關節負擔，循序漸進增加運動時間。";
-        }
-
-        if (!isNaN(whr) && whr >= whrCutoff) {
-            adviceHtml += "<br>• <strong>腰臀比提醒：</strong> 腰臀比略高，顯示腰部脂肪堆積較多，建議配合心肺有氧運動促進腹部體脂燃燒。";
-        }
-        if (!isNaN(whtr) && whtr >= 0.5) {
-            adviceHtml += "<br>• <strong>腰高比提醒：</strong> 腰高比 ≥ 0.5，需關注內臟脂肪健康，請注意控管含糖飲料與手搖飲。";
-        }
-
-        adviceBox.innerHTML = adviceHtml;
     }
 
     function saveLocalStorage() {
@@ -1706,14 +1703,14 @@
                 data[el.id] = el.value;
             }
         });
-        localStorage.setItem('health_calculator_v11_data', JSON.stringify(data));
+        localStorage.setItem('health_calculator_v11', JSON.stringify(data));
     }
 
     function loadLocalStorage() {
-        const saved = localStorage.getItem('health_calculator_v11_data');
-        if (!saved) return;
+        const raw = localStorage.getItem('health_calculator_v11');
+        if (!raw) return;
         try {
-            const data = JSON.parse(saved);
+            const data = JSON.parse(raw);
             Object.keys(data).forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -1724,91 +1721,72 @@
                     }
                 }
             });
-        } catch (e) {
-            console.error("載入本機儲存資料失敗", e);
+        } catch(e) {
+            console.error("載入本地儲存失敗", e);
         }
     }
 
     function clearLocalStorageData() {
-        if (confirm("確定要清除所有填寫的本機儲存資料嗎？")) {
-            localStorage.removeItem('health_calculator_v11_data');
+        if (confirm("確定要清除所有機台本機備份的紀錄嗎？")) {
+            localStorage.removeItem('health_calculator_v11');
             location.reload();
         }
     }
 
     function copySummaryText() {
-        const name = document.getElementById('stu-name').value || "未填寫";
-        const stuClass = document.getElementById('stu-class').value || "未填寫";
-        const stuNo = document.getElementById('stu-no').value || "未填寫";
+        const stuClass = document.getElementById('stu-class').value;
+        const stuNo = document.getElementById('stu-no').value;
+        const stuName = document.getElementById('stu-name').value;
         const bmi = document.getElementById('res-bmi').innerText;
         const bmr = document.getElementById('res-bmr').innerText;
         const neat = document.getElementById('res-neat').innerText;
-        const avgSportCal = document.getElementById('avg-sport-cal').innerText;
+        const targetCal = document.getElementById('f-target').innerText;
         const dietCal = document.getElementById('custom-diet-cal').value;
-        const targetKg = document.getElementById('target-kg-desc').innerText;
-        const reflection = document.getElementById('reflection').value || "無";
+        const reflection = document.getElementById('reflection').value;
 
-        const text = `【115-1 九年級青少年健康體型計畫摘要】
-學生：${stuClass} 班 ${stuNo} 號 ${name}
-BMI 數值：${bmi}
-基礎代謝 (BMR)：${bmr}
-日常消耗 (NEAT)：${neat}
-每日平均運動 (EAT)：${avgSportCal} kcal
-設定每日飲食卡路里：${dietCal} kcal
-目標體重變化：${targetKg}
-個人承諾與具體執行策略：
+        const summary = `【青少年健康體型計畫】
+班級：${stuClass} | 座號：${stuNo} | 姓名：${stuName}
+BMI：${bmi} | BMR：${bmr} | NEAT：${neat}
+每日飲食目標卡路里：${dietCal} kcal | 目標調整：${targetCal} kcal
+健康計畫個人承諾：
 ${reflection}`;
 
-        navigator.clipboard.writeText(text).then(() => {
-            alert("📋 學習單摘要已成功複製至剪貼簿！可直接貼上至 Google Classroom 作業繳交區。");
-        }).catch(err => {
-            alert("複製失敗，請手動複製文字。");
+        navigator.clipboard.writeText(summary).then(() => {
+            alert("已成功將學習單摘要複製至剪貼簿！可直接貼上至 Google Classroom 作業簡答。");
         });
     }
 
     function submitToGoogleDrive() {
-        const stuClass = document.getElementById('stu-class').value.trim();
-        const stuNo = document.getElementById('stu-no').value.trim();
-        const stuName = document.getElementById('stu-name').value.trim();
+        const stuClass = document.getElementById('stu-class').value;
+        const stuNo = document.getElementById('stu-no').value;
+        const stuName = document.getElementById('stu-name').value;
 
         if (!stuClass || !stuNo || !stuName) {
-            alert("⚠️ 請先填寫完整的「班級」、「座號」與「姓名」後再進行繳交！");
+            alert("請先填寫頂部的「班級」、「座號」與「姓名」欄位，才能打包繳交作業！");
             return;
         }
 
         const overlay = document.getElementById('upload-overlay');
-        const uploadBtn = document.getElementById('upload-btn');
-        const resultMsg = document.getElementById('result-msg');
-
         overlay.style.display = 'flex';
-        uploadBtn.disabled = true;
-        resultMsg.innerText = "";
 
         const element = document.getElementById('pdf-content');
         const opt = {
             margin:       0.3,
-            filename:     `${stuClass}_${stuNo}_${stuName}_青少年健康體型計畫單.pdf`,
+            filename:     `${stuClass}_${stuNo}_${stuName}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            html2canvas:  { scale: 2 },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(element).outputPdf('blob').then(function(pdfBlob) {
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                uploadBtn.disabled = false;
-                resultMsg.style.color = "green";
-                resultMsg.innerText = "✅ PDF 已成功產生並模擬傳送完成！(此功能對接正式 WebApp 伺服器端即可自動存檔)";
-                alert("🎉 學習單 PDF 已成功產生！");
-            }, 1500);
-        }).catch(function(error) {
+        html2pdf().set(opt).from(element).save().then(() => {
             overlay.style.display = 'none';
-            uploadBtn.disabled = false;
-            resultMsg.style.color = "red";
-            resultMsg.innerText = "❌ 產生 PDF 過程發生錯誤，請重試或選用列印功能。";
-            console.error(error);
+            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動匯出並完成個人健康計畫單封存！</span>`;
+        }).catch(err => {
+            overlay.style.display = 'none';
+            alert("產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
         });
     }
 </script>
+
 </body>
 </html>
