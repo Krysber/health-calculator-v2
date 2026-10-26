@@ -1942,7 +1942,7 @@ ${reflection}`;
         const name = document.getElementById('stu-name').value.trim();
 
         if (!cls || !no || !name) {
-            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行上傳繳交喔！");
+            alert("⚠️【無法上傳】請先完整填寫基本資料中的【班級】、【座號】與【姓名】才能進行作業繳交喔！");
             return;
         }
 
@@ -1966,10 +1966,12 @@ BMI：${document.getElementById('res-bmi').innerText}
         // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
+        const fileNameStr = `${cls}_${no}_${name}_健康計畫單.pdf`;
+
         // 優化版：精準控制分頁與防切斷的 PDF 設定參數
         const opt = {
             margin:       [0.4, 0.4, 0.4, 0.4], // 四周維持適當邊距 (吋)
-            filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
+            filename:     fileNameStr,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2,                 
@@ -1995,6 +1997,7 @@ BMI：${document.getElementById('res-bmi').innerText}
                 className: cls,
                 studentNo: no,
                 studentName: name,
+                fileName: fileNameStr,
                 summaryText: summary,
                 pdfBase64: pdfDataUri
             };
@@ -2010,22 +2013,28 @@ BMI：${document.getElementById('res-bmi').innerText}
             }).then(() => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師的教育雲端！</span>`;
-                // 🎯 新增：成功彈跳視窗
-                alert("🎉 恭喜！PDF 已成功打包並傳送至老師的教育雲端！");
+                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師的教育雲端！檔案名稱：${fileNameStr}</span>`;
+                alert(`🎉【上傳成功】
+
+您的健康計畫單已成功傳送至老師的雲端！
+檔案名稱：${fileNameStr}
+
+請確認畫面下方顯示綠色打勾即完成繳交。`);
             }).catch(err => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                document.getElementById('result-msg').innerHTML = `<span style="color:#e53e3e;">❌ 上傳失敗，請檢查網路連線。</span>`;
-                // 🎯 新增：失敗彈跳視窗
-                alert("❌ 上傳至雲端時發生連線問題或伺服器錯誤，請檢查網路或稍後再試。");
+                alert(`❌【上傳失敗】
+
+連線至雲端伺服器時發生錯誤（原因：${err.message || '網路連線異常'}）。
+請檢查您的網路狀態，或直接使用「一鍵列印 / 匯出 PDF」按鈕備份檔案交給老師！`);
             });
         }).catch(err => {
             overlay.style.display = 'none';
             if (uploadBtn) uploadBtn.disabled = false;
-            document.getElementById('result-msg').innerHTML = `<span style="color:#e53e3e;">❌ 產出 PDF 失敗。</span>`;
-            // 🎯 新增：PDF 產出失敗彈跳視窗
-            alert("❌ 產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
+            alert(`❌【PDF 產出失敗】
+
+在打包 PDF 時發生問題（原因：${err.message || '未知錯誤'}）。
+請重新整理頁面或直接使用「一鍵列印 / 匯出 PDF」按鈕備份。`);
         });
     }
 </script>
