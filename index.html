@@ -155,17 +155,14 @@
             -webkit-print-color-adjust: exact;   
             print-color-adjust: exact;
         }
-        /* 讓所有大區塊不會被中斷切開，避免破版或留下一大片空白 */
         .section-card { 
             box-shadow: none !important; 
             border: 1px solid #cbd5e0 !important; 
-            page-break-inside: avoid !important; /* 核心：禁止在卡片內部斷頁 */
-            break-inside: avoid !important;
-            padding: 12px !important; 
-            margin-bottom: 12px !important; 
+            padding: 10px !important; 
+            margin-bottom: 10px !important; 
             background-color: #ffffff !important;
+            /* 移除會導致空白頁的 avoid，改由 html2pdf 自動平順切換 */
         }
-        /* 隱藏不需要印出的按鈕與介面 */
         .btn, .no-print, #upload-overlay { display: none !important; }
     }
     </style>
@@ -1622,20 +1619,21 @@
         const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
-       const opt = {
-            margin:       [0.2, 0.2, 0.2, 0.2], // 調整四周邊距（上、左、下、右，單位為英吋），數字越小邊框越窄
+        const opt = {
+            margin:       0.2, // 縮小邊距，保留最多版面
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 }, // 確保圖片與背景色彩清晰
+            image:        { type: 'jpeg', quality: 0.95 },
             html2canvas:  { 
-                scale: 2,               // 放大倍率，讓文字和圖表更清晰（不跑版）
-                useCORS: true,          // 允許載入外部樣式
+                scale: 1.5,             // 稍微降低倍率（從 2 改為 1.5），避免畫布過大被瀏覽器切斷空白
+                useCORS: true,
                 letterRendering: true 
             },
             jsPDF:        { 
                 unit: 'in', 
                 format: 'letter', 
-                orientation: 'portrait' // 強制設定為【直式】(portrait)
-            }
+                orientation: 'portrait' 
+            },
+            pagebreak:    { mode: ['css', 'legacy'] } // 啟用智慧分頁，解決漏掉後面內容的問題
         };
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
             
