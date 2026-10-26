@@ -1627,23 +1627,27 @@
         // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
-        // 穩定且相容的 html2pdf 設定參數
+       // 優化分頁與防切斷的 PDF 設定參數
         const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], // 四周邊距 (吋)
+            margin:       [0.3, 0.3, 0.3, 0.3], // 稍微縮小上下左右邊距 (吋)，爭取更多完整排版空間
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
-                scale: 2,               // 保持高解析度字體清晰
-                useCORS: true,          // 允許載入跨域資源
+                scale: 2,               
+                useCORS: true,          
                 letterRendering: true,
-                windowWidth: document.documentElement.offsetWidth // 固定渲染寬度避免跑版
+                windowWidth: document.documentElement.offsetWidth 
             },
             jsPDF:        { 
                 unit: 'in', 
                 format: 'letter', 
-                orientation: 'portrait' // A4/Letter 直式
+                orientation: 'portrait' 
             },
-            pagebreak:    { mode: ['css', 'legacy'], avoid: ['.section-card', 'table'] } // 避免表格與卡片被切斷
+            // 🎯 關鍵：針對元素設定智慧分頁與避免孤行
+            pagebreak:    { 
+                mode: ['avoid-all', 'css', 'legacy'], 
+                avoid: ['.section-card', 'table', '.meal-box', 'tr'] // 強制這些區塊盡量不要在中間被切斷
+            } 
         };
 
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
