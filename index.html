@@ -1998,7 +1998,7 @@ BMI：${document.getElementById('res-bmi').innerText}
               📌 【說明與教學】：如果您要將 PDF 透過 fetch 同步上傳到 Google Apps Script (https://script.google.com/)，
               請將下方註解打開，並將您的 Apps Script 網址填入下方 fetch('https://script.google.com/...') 中：
             */
-            /*
+            
             const pdfWorker = html2pdf().set(opt).from(element).outputPdf('datauristring');
             pdfWorker.then(function(pdfDataUri) {
                 const payload = {
@@ -2008,7 +2008,7 @@ BMI：${document.getElementById('res-bmi').innerText}
                     summaryText: summary,
                     pdfBase64: pdfDataUri
                 };
-                fetch('請在此貼上您的 https://script.google.com/ 網址', {
+                fetch('請在此貼上您的'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec網址', {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
@@ -2017,7 +2017,7 @@ BMI：${document.getElementById('res-bmi').innerText}
                     console.log("已傳送至 Google 雲端 Apps Script");
                 });
             });
-            */
+            
         }).catch(err => {
             overlay.style.display = 'none';
             if (uploadBtn) uploadBtn.disabled = false;
