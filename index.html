@@ -117,6 +117,43 @@
         .btn-upload { background-color: #38a169; font-size: 1.1rem; padding: 14px; }
         .btn-upload:disabled { background-color: #a0aec0; cursor: not-allowed; }
 
+        /* ⚡ 快速套用運動範本大按鈕樣式區塊 */
+        .preset-buttons-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 10px 0 18px 0;
+        }
+
+        .btn-preset-large {
+            background: linear-gradient(135deg, #3182ce, #2b6cb0);
+            color: white;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-preset-large:hover {
+            background: linear-gradient(135deg, #2b6cb0, #2c5282);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-preset-large:active {
+            transform: translateY(0);
+        }
+        
+
         .food-card { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center; }
         .food-card.nut-special { border: 2px solid var(--nut-highlight); background: #fffff0; }
         .food-card .emoji { font-size: 1.8rem; margin-bottom: 4px; }
@@ -915,12 +952,14 @@
     <div class="section-card">
         <h2 class="section-title">五、 運動規劃與 EAT 熱量平衡對接</h2>
         
-        <div style="margin-bottom: 12px;" class="no-print">
-            <span style="font-size: 0.88rem; font-weight: bold; color: var(--primary-dark);">⚡ 快速套用運動範本：</span>
-            <button class="btn btn-preset" onclick="applyPreset('team')">🏀 校園球隊型</button>
-            <button class="btn btn-preset" onclick="applyPreset('commute')">🏃 日常通勤好動型</button>
-            <button class="btn btn-preset" onclick="applyPreset('home')">🧘 居家循序修復型</button>
+       <div style="margin-bottom: 12px;" class="no-print">
+        <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary-dark); display: block; margin-bottom: 8px;">⚡ 快速套用運動範本：</span>
+        <div class="preset-buttons-container">
+            <button class="btn-preset-large" onclick="applyPreset('team')">🏀 校園球隊型</button>
+            <button class="btn-preset-large" onclick="applyPreset('commute')" style="background: linear-gradient(135deg, #319795, #285e61);">🏃 日常通勤好動型</button>
+            <button class="btn-preset-large" onclick="applyPreset('home')" style="background: linear-gradient(135deg, #805ad5, #553c9a);">🧘 居家循序修復型</button>
         </div>
+    </div>
 
         <!-- 熱量平衡算式公式與動態呼應 -->
         <div class="formula-box">
