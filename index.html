@@ -1334,6 +1334,30 @@
         let bmiClass = bmi < bmiLow ? 'badge-low' : bmi < bmiOver ? 'badge-normal' : 'badge-high';
         document.getElementById('eval-bmi').innerHTML = `<span class="badge ${bmiClass}">${bmiStatus}</span>`;
 
+        // 🎯 核心防呆：檢查「計畫健康目標」與「體重變化」是否符合 BMI 身體狀況
+        const goalVal = document.getElementById('goal').value;
+        const goalWarningEl = document.getElementById('goal-warning');
+        let goalWarningMsg = "";
+
+        if (bmi < bmiLow && (goal === 'lose_weight' || goal === 'lose_fat')) {
+            goalWarningMsg = "⚠️ <strong>健康提醒：</strong> 您目前的 BMI 測量數值屬於「體重過輕」，現階段建議以「均衡營養、增進體能與規律生活」為主，不建議進行減重或減脂計畫喔！";
+        } else if (bmi >= bmiOver && goal === 'gain_weight') {
+            goalWarningMsg = "💡 <strong>健康提醒：</strong> 您目前的 BMI 測量數值已高於參考範圍，若要調整體型，建議以「均衡飲食與規律有氧運動」來提升代謝，盲目增加體重可能會增加身體負擔。";
+        } else if (targetKg > 1.5 || targetKg < -1.5) {
+            goalWarningMsg = "📌 <strong>教學指引：</strong> 青少年正值生長發育期，短期的觀察體重變化建議設定在 ±1.5 kg 以內，透過穩健的飲食與運動習慣達成目標！";
+        } else {
+            goalWarningMsg = "✨ 您的計畫目標與目前的身體質量指數（BMI）狀態搭配得宜，請持續落實健康承諾！";
+        }
+
+        if (goalWarningMsg) {
+            goalWarningEl.style.display = 'block';
+            goalWarningEl.innerHTML = goalWarningMsg;
+        } else {
+            goalWarningEl.style.display = 'none';
+        }
+
+    
+
         const whr = waist / hip; const whtr = waist / height;
         const whrCutoff = gender === 'male' ? 0.92 : 0.88;
         const whrPass = whr < whrCutoff;
