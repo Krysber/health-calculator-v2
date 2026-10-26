@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>115-1 九年級青少年健康體型計畫與熱量平衡計算器 V11.0</title>
     <!-- 載入 html2pdf.js 庫供自動轉換 PDF 上傳 -->
-    <script src="https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary-color: #2b6cb0;
@@ -386,8 +386,7 @@
             </div>
         </div>
     </div>
-
-    <!-- 四、 青春期一日飲食建議量與三餐安排 -->
+ <!-- 四、 青春期一日飲食建議量與三餐安排 -->
     <div class="section-card">
         <h2 class="section-title">四、 我的每日六大類食物目標份量 (衛福部青少年營養手冊對接)</h2>
         
@@ -947,6 +946,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- 五、 運動計算規劃區與 EAT 熱量平衡對接 -->
     <div class="section-card">
@@ -1755,37 +1755,50 @@ ${reflection}`;
             alert("已成功將學習單摘要複製至剪貼簿！可直接貼上至 Google Classroom 作業簡答。");
         });
     }
-
-    function submitToGoogleDrive() {
-        const stuClass = document.getElementById('stu-class').value;
-        const stuNo = document.getElementById('stu-no').value;
-        const stuName = document.getElementById('stu-name').value;
-
-        if (!stuClass || !stuNo || !stuName) {
-            alert("請先填寫頂部的「班級」、「座號」與「姓名」欄位，才能打包繳交作業！");
-            return;
-        }
-
-        const overlay = document.getElementById('upload-overlay');
-        overlay.style.display = 'flex';
-
-        const element = document.getElementById('pdf-content');
-        const opt = {
-            margin:       0.3,
-            filename:     `${stuClass}_${stuNo}_${stuName}_健康計畫單.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        // 🎯 因為大標題已經全面強制分頁，這裡主要保護表格與餐點區塊不被切斷即可
+            pagebreak:    { 
+                mode: ['css', 'legacy'], 
+                avoid: ['table', '.meal-box', 'tr'] 
+            } 
         };
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            overlay.style.display = 'none';
-            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動匯出並完成個人健康計畫單封存！</span>`;
-        }).catch(err => {
-            overlay.style.display = 'none';
-            alert("產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
+        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
+            
+            const GAS_URL = "https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec";
+
+            const payload = {
+                stuClass: cls,
+                stuNo: no,
+                stuName: name,
+                summaryText: summary,
+                pdfBase64: pdfBase64
+            };
+
+            fetch(GAS_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                document.getElementById('upload-overlay').style.display = 'none';
+                document.getElementById('upload-btn').disabled = false;
+                
+                const msgDiv = document.getElementById('result-msg');
+                msgDiv.style.color = "#276749";
+                msgDiv.innerHTML = "🎉 作業上傳成功！檔案已經安全送達老師的雲端硬碟囉！";
+                alert("🎉 繳交成功！");
+            })
+            .catch(err => {
+                document.getElementById('upload-overlay').style.display = 'none';
+                document.getElementById('upload-btn').disabled = false;
+                alert("上傳發生錯誤，請再試一次或截圖回報老師：" + err);
+            });
         });
     }
+
 </script>
 
 </body>
