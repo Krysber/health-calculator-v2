@@ -386,7 +386,8 @@
             </div>
         </div>
     </div>
- <!-- 四、 青春期一日飲食建議量與三餐安排 -->
+
+    <!-- 四、 青春期一日飲食建議量與三餐安排 -->
     <div class="section-card">
         <h2 class="section-title">四、 我的每日六大類食物目標份量 (衛福部青少年營養手冊對接)</h2>
         
@@ -475,10 +476,13 @@
                     <input type="text" class="custom-food-input" id="bf-g-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-g-p" onchange="checkPortionHint(this, 'grain', 0.8, 1.2); onMealChange();">
-                        <option value="0">無 (0 碗)</option>
-                        <option value="0.5">0.5 碗 (約1片吐司/半顆地瓜)</option>
-                        <option value="1" selected>1 碗 (約2片吐司/1顆地瓜)</option>
-                        <option value="1.5">1.5 碗 (大份量主食)</option>
+                        <option value="0" selected>0 碗</option>
+                        <option value="0.5">0.5 碗</option>
+                        <option value="1">1 碗</option>
+                        <option value="1.5">1.5 碗</option>
+                        <option value="2">2 碗</option>
+                        <option value="2.5">2.5 碗</option>
+                        <option value="3">3 碗</option>
                     </select>
                     <div class="portion-hint" id="bf-g-hint"></div>
                 </div>
@@ -498,10 +502,15 @@
                     <input type="text" class="custom-food-input" id="bf-p-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-p-p" onchange="checkPortionHint(this, 'protein', 1, 2); onMealChange();">
-                        <option value="0">無 (0 份)</option>
-                        <option value="1" selected>1 份 (蛋1顆/豆漿240ml/掌心半大肉片)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
                         <option value="1.5">1.5 份</option>
-                        <option value="2">2 份 (蛋2顆/肉片1掌心)</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
                     </select>
                     <div class="portion-hint" id="bf-p-hint"></div>
                 </div>
@@ -520,9 +529,13 @@
                     <input type="text" class="custom-food-input" id="bf-d-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-d-p" onchange="checkPortionHint(this, 'dairy', 1, 1); onMealChange();">
-                        <option value="0">無 (0 杯)</option>
-                        <option value="1" selected>1 杯 (240ml / 起司2片)</option>
+                        <option value="0" selected>0 杯</option>
+                        <option value="0.5">0.5 杯</option>
+                        <option value="1">1 杯</option>
                         <option value="1.5">1.5 杯</option>
+                        <option value="2">2 杯</option>
+                        <option value="2.5">2.5 杯</option>
+                        <option value="3">3 杯</option>
                     </select>
                     <div class="portion-hint" id="bf-d-hint"></div>
                 </div>
@@ -543,8 +556,13 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-v-p" onchange="onMealChange()">
                         <option value="0" selected>0 份</option>
-                        <option value="0.5">0.5 份 (生菜1碟/番茄數片)</option>
-                        <option value="1">1 份 (熟菜半碗)</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -561,9 +579,14 @@
                     <input type="text" class="custom-food-input" id="bf-f-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-f-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="0.5">0.5 份 (半顆蘋果/半根香蕉)</option>
-                        <option value="1" selected>1 份 (1顆拳頭大水果)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -580,8 +603,18 @@
                     <input type="text" class="custom-food-input" id="bf-n-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="bf-n-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (堅果1湯匙/小包)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
+                        <option value="6">6 份</option>
+                        <option value="7">7 份</option>
+                        <option value="8">8 份</option>
                     </select>
                 </div>
             </div>
@@ -605,10 +638,13 @@
                     <input type="text" class="custom-food-input" id="lu-g-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-g-p" onchange="checkPortionHint(this, 'grain', 1, 1.5); onMealChange();">
-                        <option value="0">0 碗</option>
-                        <option value="0.8">0.8 碗</option>
-                        <option value="1" selected>1 碗 (標準碗平碗)</option>
-                        <option value="1.5">1.5 碗 (高活動量大碗)</option>
+                        <option value="0" selected>0 碗</option>
+                        <option value="0.5">0.5 碗</option>
+                        <option value="1">1 碗</option>
+                        <option value="1.5">1.5 碗</option>
+                        <option value="2">2 碗</option>
+                        <option value="2.5">2.5 碗</option>
+                        <option value="3">3 碗</option>
                     </select>
                     <div class="portion-hint" id="lu-g-hint"></div>
                 </div>
@@ -627,10 +663,15 @@
                     <input type="text" class="custom-food-input" id="lu-p-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-p-p" onchange="checkPortionHint(this, 'protein', 2, 3); onMealChange();">
-                        <option value="0">0 份</option>
-                        <option value="1">1 份 (半掌心肉片)</option>
-                        <option value="2" selected>2 份 (約1掌心肉/1大雞腿)</option>
-                        <option value="3">3 份 (大份量蛋白質)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
                     </select>
                     <div class="portion-hint" id="lu-p-hint"></div>
                 </div>
@@ -647,7 +688,12 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-d-p" onchange="onMealChange()">
                         <option value="0" selected>0 杯</option>
-                        <option value="1">1 杯 (240ml)</option>
+                        <option value="0.5">0.5 杯</option>
+                        <option value="1">1 杯</option>
+                        <option value="1.5">1.5 杯</option>
+                        <option value="2">2 杯</option>
+                        <option value="2.5">2.5 杯</option>
+                        <option value="3">3 杯</option>
                     </select>
                 </div>
             </div>
@@ -665,10 +711,14 @@
                     <input type="text" class="custom-food-input" id="lu-v-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-v-p" onchange="checkPortionHint(this, 'veg', 1, 2); onMealChange();">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (熟菜標準碗0.5碗)</option>
-                        <option value="1.5">1.5 份 (熟菜0.75碗)</option>
-                        <option value="2">2 份 (熟菜標準碗1滿碗)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                     <div class="portion-hint" id="lu-v-hint"></div>
                 </div>
@@ -686,8 +736,14 @@
                     <input type="text" class="custom-food-input" id="lu-f-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-f-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (拳頭大1顆)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -702,9 +758,18 @@
                     <input type="text" class="custom-food-input" id="lu-n-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="lu-n-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="1">1 份 (油脂1茶匙)</option>
-                        <option value="2" selected>2 份 (正餐烹調油約2茶匙)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
+                        <option value="6">6 份</option>
+                        <option value="7">7 份</option>
+                        <option value="8">8 份</option>
                     </select>
                 </div>
             </div>
@@ -726,9 +791,13 @@
                     <input type="text" class="custom-food-input" id="dn-g-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-g-p" onchange="checkPortionHint(this, 'grain', 0.8, 1); onMealChange();">
-                        <option value="0">0 碗</option>
-                        <option value="0.8">0.8 碗 (適量晚餐飯量)</option>
-                        <option value="1" selected>1 碗 (標準碗平碗/水餃8顆)</option>
+                        <option value="0" selected>0 碗</option>
+                        <option value="0.5">0.5 碗</option>
+                        <option value="1">1 碗</option>
+                        <option value="1.5">1.5 碗</option>
+                        <option value="2">2 碗</option>
+                        <option value="2.5">2.5 碗</option>
+                        <option value="3">3 碗</option>
                     </select>
                     <div class="portion-hint" id="dn-g-hint"></div>
                 </div>
@@ -745,9 +814,15 @@
                     <input type="text" class="custom-food-input" id="dn-p-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-p-p" onchange="checkPortionHint(this, 'protein', 2, 2.5); onMealChange();">
-                        <option value="0">0 份</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
                         <option value="1.5">1.5 份</option>
-                        <option value="2" selected>2 份 (約1掌心大小)</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
                     </select>
                     <div class="portion-hint" id="dn-p-hint"></div>
                 </div>
@@ -763,8 +838,13 @@
                     <input type="text" class="custom-food-input" id="dn-d-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-d-p" onchange="onMealChange()">
-                        <option value="0">0 杯</option>
-                        <option value="0.5-1" selected>0.5 ~ 1 杯 (補足一日1.5-2杯需求)</option>
+                        <option value="0" selected>0 杯</option>
+                        <option value="0.5">0.5 杯</option>
+                        <option value="1">1 杯</option>
+                        <option value="1.5">1.5 杯</option>
+                        <option value="2">2 杯</option>
+                        <option value="2.5">2.5 杯</option>
+                        <option value="3">3 杯</option>
                     </select>
                 </div>
             </div>
@@ -781,9 +861,14 @@
                     <input type="text" class="custom-food-input" id="dn-v-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-v-p" onchange="checkPortionHint(this, 'veg', 1, 1.5); onMealChange();">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (熟菜半碗)</option>
-                        <option value="1.5">1.5 份 (熟菜0.75碗)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                     <div class="portion-hint" id="dn-v-hint"></div>
                 </div>
@@ -800,8 +885,14 @@
                     <input type="text" class="custom-food-input" id="dn-f-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-f-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (1顆/1碗裝滿)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -817,8 +908,18 @@
                     <input type="text" class="custom-food-input" id="dn-n-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="dn-n-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="2" selected>2 份 (正餐烹調油約2茶匙)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
+                        <option value="6">6 份</option>
+                        <option value="7">7 份</option>
+                        <option value="8">8 份</option>
                     </select>
                 </div>
             </div>
@@ -841,7 +942,12 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-g-p" onchange="onMealChange()">
                         <option value="0" selected>0 碗</option>
-                        <option value="0.5">0.5 碗 (小點心)</option>
+                        <option value="0.5">0.5 碗</option>
+                        <option value="1">1 碗</option>
+                        <option value="1.5">1.5 碗</option>
+                        <option value="2">2 碗</option>
+                        <option value="2.5">2.5 碗</option>
+                        <option value="3">3 碗</option>
                     </select>
                 </div>
 
@@ -857,7 +963,14 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-p-p" onchange="onMealChange()">
                         <option value="0" selected>0 份</option>
-                        <option value="1">1 份 (運動後蛋白質補充)</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
                     </select>
                 </div>
 
@@ -873,7 +986,12 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-d-p" onchange="onMealChange()">
                         <option value="0" selected>0 杯</option>
-                        <option value="0.5-1">0.5 ~ 1 杯</option>
+                        <option value="0.5">0.5 杯</option>
+                        <option value="1">1 杯</option>
+                        <option value="1.5">1.5 杯</option>
+                        <option value="2">2 杯</option>
+                        <option value="2.5">2.5 杯</option>
+                        <option value="3">3 杯</option>
                     </select>
                 </div>
             </div>
@@ -890,6 +1008,13 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-v-p" onchange="onMealChange()">
                         <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -905,7 +1030,13 @@
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-f-p" onchange="onMealChange()">
                         <option value="0" selected>0 份</option>
-                        <option value="1">1 份 (運動後醣類補充)</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
                     </select>
                 </div>
 
@@ -920,8 +1051,18 @@
                     <input type="text" class="custom-food-input" id="sn-n-custom" placeholder="請輸入食物名稱" style="display:none; margin-top:4px;" oninput="onMealChange()">
                     <label style="margin-top:6px; font-weight:normal; font-size:0.85rem;">設定份量：</label>
                     <select class="portion-select" id="sn-n-p" onchange="onMealChange()">
-                        <option value="0">0 份</option>
-                        <option value="1" selected>1 份 (堅果1小包/約1湯匙)</option>
+                        <option value="0" selected>0 份</option>
+                        <option value="0.5">0.5 份</option>
+                        <option value="1">1 份</option>
+                        <option value="1.5">1.5 份</option>
+                        <option value="2">2 份</option>
+                        <option value="2.5">2.5 份</option>
+                        <option value="3">3 份</option>
+                        <option value="4">4 份</option>
+                        <option value="5">5 份</option>
+                        <option value="6">6 份</option>
+                        <option value="7">7 份</option>
+                        <option value="8">8 份</option>
                     </select>
                 </div>
             </div>
@@ -946,7 +1087,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- 五、 運動計算規劃區與 EAT 熱量平衡對接 -->
     <div class="section-card">
@@ -1650,7 +1790,12 @@
         const getMealPortion = (id) => {
             const sel = document.getElementById(id + '-p');
             if (!sel) return 0;
-            return parseFloat(sel.value) || 0;
+            const valStr = String(sel.value);
+            if (valStr.includes('-')) {
+                const parts = valStr.split('-');
+                return (parseFloat(parts[0]) + parseFloat(parts[1])) / 2 || 1;
+            }
+            return parseFloat(valStr) || 0;
         };
 
         const totals = { grain: 0, protein: 0, dairy: 0, veg: 0, fruit: 0, oilNut: 0 };
@@ -1668,6 +1813,29 @@
             });
         });
 
+        // Dynamic range parser based on currentOfficialPortions strings
+        const parseRange = (str, defMin, defMax) => {
+            if (!str) return { min: defMin, max: defMax };
+            const matches = str.match(/\d+(\.\d+)?/g);
+            if (!matches || matches.length === 0) return { min: defMin, max: defMax };
+            if (str.includes('-')) {
+                const parts = str.split('-');
+                return { min: parseFloat(parts[0]) || defMin, max: parseFloat(parts[1]) || defMax };
+            } else {
+                const val = parseFloat(matches[0]);
+                return { min: Math.max(0, val - 0.5), max: val + 0.5 };
+            }
+        };
+
+        const targetRanges = {
+            grain: parseRange(currentOfficialPortions.grain, 3, 4),
+            protein: parseRange(currentOfficialPortions.protein, 5, 7),
+            dairy: parseRange(currentOfficialPortions.dairy, 1.5, 2),
+            veg: parseRange(currentOfficialPortions.veg, 3, 5),
+            fruit: parseRange(currentOfficialPortions.fruit, 2, 4),
+            oilNut: parseRange(currentOfficialPortions.oilNut, 4, 6)
+        };
+
         const tbody = document.getElementById('meal-compare-body');
         const rows = [
             { name: '🥣 全穀雜糧類', key: 'grain', std: currentOfficialPortions.grain, unit: '碗' },
@@ -1680,13 +1848,25 @@
 
         tbody.innerHTML = rows.map(r => {
             const currentTotal = totals[r.key];
+            const range = targetRanges[r.key];
+            let badgeClass = 'badge-normal';
+            let statusText = '👍 符合衛福部建議範圍！';
+
+            if (currentTotal < range.min) {
+                badgeClass = 'badge-low';
+                statusText = `⚠️ 份量偏少（建議達 ${range.min} ${r.unit} 以上）`;
+            } else if (currentTotal > range.max) {
+                badgeClass = 'badge-high';
+                statusText = `⚠️ 份量較多（建議控制在 ${range.max} ${r.unit} 內）`;
+            }
+
             const itemList = items[r.key].length > 0 ? items[r.key].join(', ') : '尚未選擇';
             return `
                 <tr>
                     <td><strong>${r.name}</strong></td>
-                    <td style="font-size:0.85rem;">${itemList} <br><strong>小計：${currentTotal} ${r.unit}</strong></td>
+                    <td style="font-size:0.85rem;">${itemList} <br><strong>小計：${currentTotal.toFixed(1).replace('.0','')} ${r.unit}</strong></td>
                     <td>${r.std}</td>
-                    <td><span class="badge badge-normal">已搭配好</span></td>
+                    <td><span class="badge ${badgeClass}">${statusText}</span></td>
                 </tr>
             `;
         }).join('');
@@ -1755,50 +1935,38 @@ ${reflection}`;
             alert("已成功將學習單摘要複製至剪貼簿！可直接貼上至 Google Classroom 作業簡答。");
         });
     }
-        // 🎯 因為大標題已經全面強制分頁，這裡主要保護表格與餐點區塊不被切斷即可
-            pagebreak:    { 
-                mode: ['css', 'legacy'], 
-                avoid: ['table', '.meal-box', 'tr'] 
-            } 
+
+    function submitToGoogleDrive() {
+        const stuClass = document.getElementById('stu-class').value;
+        const stuNo = document.getElementById('stu-no').value;
+        const stuName = document.getElementById('stu-name').value;
+
+        if (!stuClass || !stuNo || !stuName) {
+            alert("請先填寫頂部的「班級」、「座號」與「姓名」欄位，才能打包繳交作業！");
+            return;
+        }
+
+        const overlay = document.getElementById('upload-overlay');
+        overlay.style.display = 'flex';
+
+        const element = document.getElementById('pdf-content');
+        const opt = {
+            margin:       [10, 10, 10, 10],
+            filename:     `${stuClass}_${stuNo}_${stuName}_健康計畫單.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 1.5, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['css', 'legacy'] }
         };
 
-        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
-            
-            const GAS_URL = "https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec";
-
-            const payload = {
-                stuClass: cls,
-                stuNo: no,
-                stuName: name,
-                summaryText: summary,
-                pdfBase64: pdfBase64
-            };
-
-            fetch(GAS_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
-                
-                const msgDiv = document.getElementById('result-msg');
-                msgDiv.style.color = "#276749";
-                msgDiv.innerHTML = "🎉 作業上傳成功！檔案已經安全送達老師的雲端硬碟囉！";
-                alert("🎉 繳交成功！");
-            })
-            .catch(err => {
-                document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
-                alert("上傳發生錯誤，請再試一次或截圖回報老師：" + err);
-            });
+        html2pdf().set(opt).from(element).save().then(() => {
+            overlay.style.display = 'none';
+            document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 自動匯出並完成個人健康計畫單封存！</span>`;
+        }).catch(err => {
+            overlay.style.display = 'none';
+            alert("產出 PDF 時發生問題，請直接使用「列印/匯出 PDF」按鈕備份。");
         });
     }
-
 </script>
 
 </body>
