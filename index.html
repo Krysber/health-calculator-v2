@@ -46,6 +46,8 @@
             margin-bottom: 22px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
+            page-break-inside: avoid; /* 確保卡片內部不會被硬生生切斷 */
+            break-inside: avoid;
         }
 
         .section-title {
@@ -101,7 +103,7 @@
         }
         .btn:hover { background-color: var(--primary-dark); }
         .btn-copy { background-color: #805ad5; }
-        .btn-print { background-color: var(--success-color); }
+        .btn-print { background-color: #38a169; }
         .btn-preset { background-color: #4a5568; font-size: 0.82rem; padding: 6px 10px; margin-right: 5px; }
         .btn-upload { background-color: #38a169; font-size: 1.1rem; padding: 14px; }
         .btn-upload:disabled { background-color: #a0aec0; cursor: not-allowed; }
@@ -149,22 +151,21 @@
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3182ce; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-       @media print {
-        body { 
-            background-color: #ffffff !important; 
-            -webkit-print-color-adjust: exact;   
-            print-color-adjust: exact;
+        @media print {
+            body { 
+                background-color: #ffffff !important; 
+                -webkit-print-color-adjust: exact;   
+                print-color-adjust: exact;
+            }
+            .section-card { 
+                box-shadow: none !important; 
+                border: 1px solid #cbd5e0 !important; 
+                padding: 12px !important; 
+                margin-bottom: 12px !important; 
+                background-color: #ffffff !important;
+            }
+            .btn, .no-print, #upload-overlay { display: none !important; }
         }
-        .section-card { 
-            box-shadow: none !important; 
-            border: 1px solid #cbd5e0 !important; 
-            padding: 10px !important; 
-            margin-bottom: 10px !important; 
-            background-color: #ffffff !important;
-            /* 移除會導致空白頁的 avoid，改由 html2pdf 自動平順切換 */
-        }
-        .btn, .no-print, #upload-overlay { display: none !important; }
-    }
     </style>
 </head>
 <body>
@@ -1601,7 +1602,7 @@
         });
     }
 
-    // 🎯 核心：一鍵打包 PDF 並透過 Google Apps Script 上傳至雲端硬碟
+    // 🎯 核心：修正 PDF 轉檔參數，解決空白與截斷問題
     function submitToGoogleDrive() {
         const cls = document.getElementById('stu-class').value.trim();
         const no = document.getElementById('stu-no').value.trim();
@@ -1619,25 +1620,28 @@
         const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
+        
+        // 修正後的穩定 PDF 設定參數
         const opt = {
-            margin:       0.2, // 縮小邊距，保留最多版面
+            margin:       [0.4, 0.4, 0.4, 0.4], // 四周留點邊距，讓畫面更清爽
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
-            image:        { type: 'jpeg', quality: 0.95 },
+            image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
-                scale: 1.5,             // 稍微降低倍率（從 2 改為 1.5），避免畫布過大被瀏覽器切斷空白
+                scale: 2,               // 保持高解析度字體清晰
                 useCORS: true,
-                letterRendering: true 
+                letterRendering: true,
+                scrollY: 0              // 強制從頁面頂端開始渲染，避免漏掉開頭
             },
             jsPDF:        { 
                 unit: 'in', 
                 format: 'letter', 
-                orientation: 'portrait' 
+                orientation: 'portrait' // 強制直式
             },
-            pagebreak:    { mode: ['css', 'legacy'] } // 啟用智慧分頁，解決漏掉後面內容的問題
+            pagebreak:    { mode: ['css', 'legacy'] } // 啟用智慧分頁
         };
+
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
             
-            // ⚠️ 貼上您剛剛從 Google Apps Script 部署取得的「網頁應用程式 URL」
             const GAS_URL = "https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec";
 
             const payload = {
