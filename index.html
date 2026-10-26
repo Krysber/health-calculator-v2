@@ -1602,7 +1602,7 @@
         });
     }
 
-    // 🎯 核心：修正 PDF 轉檔參數，解決空白與截斷問題
+   // 🎯 核心：修正 PDF 轉檔參數與背景渲染，解決空白與跑版問題
     function submitToGoogleDrive() {
         const cls = document.getElementById('stu-class').value.trim();
         const no = document.getElementById('stu-no').value.trim();
@@ -1617,27 +1617,33 @@
         document.getElementById('upload-btn').disabled = true;
         document.getElementById('upload-status-text').innerText = "正在打包 PDF 並傳送至老師雲端...";
 
+        // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
+        window.scrollTo(0, 0);
+
         const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
         
-        // 修正後的穩定 PDF 設定參數
+        // 確保列印/轉檔時背景為純白，避免透明導致空白頁
+        element.style.backgroundColor = "#ffffff";
+
+        // 穩定且相容的 html2pdf 設定參數
         const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], // 四周留點邊距，讓畫面更清爽
+            margin:       [0.4, 0.4, 0.4, 0.4], // 四周邊距 (吋)
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2,               // 保持高解析度字體清晰
-                useCORS: true,
+                useCORS: true,          // 允許載入跨域資源
                 letterRendering: true,
-                scrollY: 0              // 強制從頁面頂端開始渲染，避免漏掉開頭
+                windowWidth: document.documentElement.offsetWidth // 固定渲染寬度避免跑版
             },
             jsPDF:        { 
                 unit: 'in', 
                 format: 'letter', 
-                orientation: 'portrait' // 強制直式
+                orientation: 'portrait' // A4/Letter 直式
             },
-            pagebreak:    { mode: ['css', 'legacy'] } // 啟用智慧分頁
+            pagebreak:    { mode: ['css', 'legacy'], avoid: ['.section-card', 'table'] } // 避免表格與卡片被切斷
         };
 
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
