@@ -2012,23 +2012,14 @@ BMI：${document.getElementById('res-bmi').innerText}
         };
 
         // 🎯 核心修正：使用 outputPdf('datauristring') 轉為 Base64 字串透過 fetch 上傳至 Google Apps Script 雲端
-
         html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfDataUri) {
-
             const payload = {
-
                 className: cls,
-
                 studentNo: no,
-
                 studentName: name,
-
                 studentEmail: email,
-
                 fileName: fileNameStr,
-
                 summaryText: summary,
-
                 pdfBase64: pdfDataUri
 
             };
