@@ -39,16 +39,24 @@
         header h1 { margin: 0 0 8px 0; font-size: 1.7rem; }
         header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
 
-       .section-card {
+       /* 強制每一個區塊（大標題）都從新的一頁開始 */
+        .section-card {
             background: var(--card-bg);
             border-radius: 12px;
             padding: 22px;
             margin-bottom: 22px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
-            page-break-inside: avoid; /* 確保卡片內部不會被切斷 */
+            page-break-before: always; /* 確保每一個大標題都強制分頁 */
+            break-before: page;        /* 確保每一個大標題都強制分頁 */
+            page-break-inside: avoid;  
             break-inside: avoid;
-            break-before: auto;       /* 讓標題與區塊保持連貫 */
+        }
+
+        /* 讓第一個大標題（學生基本資料）不要強迫分頁，跟 header 連在第一頁即可 */
+        .container > .section-card:first-of-type {
+            page-break-before: auto;
+            break-before: auto;
         }
         
         .section-title {
