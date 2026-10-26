@@ -1636,9 +1636,8 @@
         // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
-       // 優化版：精準控制分頁與防切斷的 PDF 設定參數
-        const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], // 四周維持適當邊距 (吋)
+       const opt = {
+            margin:       [0.4, 0.4, 0.4, 0.4], // 四周邊距 (吋)
             filename:     `${cls}_${no}_${name}_健康計畫單.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -1652,10 +1651,10 @@
                 format: 'letter', 
                 orientation: 'portrait' 
             },
-            // 🎯 關鍵修正：透過 CSS 選擇器強制保護大標題、卡片與表格不被斷開
+            // 🎯 因為大標題已經全面強制分頁，這裡主要保護表格與餐點區塊不被切斷即可
             pagebreak:    { 
                 mode: ['css', 'legacy'], 
-                avoid: ['.section-card', 'table', '.meal-box', 'tr', 'h2', 'h3'] 
+                avoid: ['table', '.meal-box', 'tr'] 
             } 
         };
 
