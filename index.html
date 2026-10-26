@@ -1939,93 +1939,27 @@ ${reflection}`;
         });
     }
 
- function submitToGoogleDrive() {
-        // 1. 直接精準抓取班級、座號、姓名
+    function submitToGoogleDrive() {
         const cls = document.getElementById('stu-class').value.trim();
         const no = document.getElementById('stu-no').value.trim();
         const name = document.getElementById('stu-name').value.trim();
+        const email = document.getElementById('stu-email') ? document.getElementById('stu-email').value.trim() : '';
 
         if (!cls || !no || !name) {
-            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行上傳繳交喔！");
+            alert("⚠️【無法上傳】請先完整填寫基本資料中的【班級】、【座號】與【姓名】才能進行作業繳交喔！");
             return;
         }
 
-        document.getElementById('upload-overlay').style.display = 'flex';
-        document.getElementById('upload-btn').disabled = true;
-        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並傳送至老師雲端...";
+        const overlay = document.getElementById('upload-overlay');
+        overlay.style.display = 'flex';
+        const uploadBtn = document.getElementById('upload-btn');
+        if (uploadBtn) uploadBtn.disabled = true;
+        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並上傳至雲端與寄送信件...";
 
         // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
         window.scrollTo(0, 0);
 
-        const summary = `班級：${cls} | 座號：${no} | 姓名：${name}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
-
-        const element = document.getElementById('pdf-content');
-        
-        // 確保列印/轉檔時背景為純白，避免透明導致空白頁
-        element.style.backgroundColor = "#ffffff";
-
-        // 2. 🎯 確保檔名直接在這裡正確組合，不再透過其他未定義變數
-        const fileNameStr = `${cls}_${no}_${name}_健康計畫單.pdf`;
-
-        const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], 
-            filename:     fileNameStr, // 確保檔名變數正確帶入
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 2,               
-                useCORS: true,          
-                letterRendering: true,
-                windowWidth: document.documentElement.offsetWidth 
-            },
-            jsPDF:        { 
-                unit: 'in', 
-                format: 'letter', 
-                orientation: 'portrait' 
-            },
-            pagebreak:    { 
-                mode: ['css', 'legacy'], 
-                avoid: ['.section-card', 'table', '.meal-box', 'tr', 'h2', 'h3'] 
-            } 
-        };
-
-        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
-            
-            const GAS_URL = "https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec";
-
-            const payload = {
-                stuClass: cls,
-                stuNo: no,
-                stuName: name,
-                fileName: fileNameStr, // 傳給後端確保雲端檔名也正確
-                summaryText: summary,
-                pdfBase64: pdfBase64
-            };
-
-            fetch(GAS_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
-                
-                const msgDiv = document.getElementById('result-msg');
-                msgDiv.style.color = "#276749";
-                msgDiv.innerHTML = "🎉 作業上傳成功！檔案已經安全送達老師的雲端硬碟囉！";
-                alert("🎉 繳交成功！檔案名稱：" + fileNameStr);
-            })
-            .catch(err => {
-                document.getElementById('upload-overlay').style.display = 'none';
-                document.getElementById('upload-btn').disabled = false;
-                alert("上傳發生錯誤，請再試一次或截圖回報老師：" + err);
-            });
-        });
-    }
-        
+        const summary = `班級：${cls} | 座號：${no} | 姓名：${name} | Email：${email || '未填寫'}
 BMI：${document.getElementById('res-bmi').innerText}
 飲食目標：${document.getElementById('custom-diet-cal').value} kcal
 目標飲水：${document.getElementById('water-target').value} ml
@@ -2074,7 +2008,7 @@ BMI：${document.getElementById('res-bmi').innerText}
             };
 
             // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
-            const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
+            const gasUrl = '請在此貼上您的 https://script.google.com/ 網址';
 
             fetch(gasUrl, {
                 method: 'POST',
