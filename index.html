@@ -1951,26 +1951,14 @@ ${reflection}`;
     }
 
     function submitToGoogleDrive() {
-        // 🎯 微調：確保讀取值乾淨且加上防呆檢查
-        const clsField = document.getElementById('stu-class');
-        const noField = document.getElementById('stu-no');
-        const nameField = document.getElementById('stu-name');
-
-        let cls = clsField ? clsField.value.trim() : '';
-        let no = noField ? noField.value.trim() : '';
-        let name = nameField ? nameField.value.trim() : '';
-
-        if (cls === 'undefined') cls = '';
-        if (no === 'undefined') no = '';
-        if (name === 'undefined') name = '';
-
+        // 🎯 採用舊版本乾淨俐落的抓取方式，並加上基本的空白清除
+        const cls = document.getElementById('stu-class').value.trim();
+        const no = document.getElementById('stu-no').value.trim();
+        const name = document.getElementById('stu-name').value.trim();
         const email = document.getElementById('stu-email') ? document.getElementById('stu-email').value.trim() : '';
 
         if (!cls || !no || !name) {
-            alert("⚠️【無法上傳】請先完整填寫基本資料中的【班級】、【座號】與【姓名】才能進行作業繳交喔！");
-            if (clsField && cls === '') clsField.value = '';
-            if (noField && no === '') noField.value = '';
-            if (nameField && name === '') nameField.value = '';
+            alert("⚠️ 請先完整填寫【班級】、【座號】與【姓名】才能進行上傳繳交喔！");
             return;
         }
 
@@ -1978,27 +1966,19 @@ ${reflection}`;
         overlay.style.display = 'flex';
         const uploadBtn = document.getElementById('upload-btn');
         if (uploadBtn) uploadBtn.disabled = true;
-        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並上傳至雲端與寄送信件...";
+        document.getElementById('upload-status-text').innerText = "正在打包 PDF 並傳送至老師雲端...";
 
-        // 強制滾動到頂端，避免 html2canvas 抓取座標偏移導致空白
         window.scrollTo(0, 0);
 
-        const summary = `班級：${cls} | 座號：${no} | 姓名：${name} | Email：${email || '未填寫'}
-BMI：${document.getElementById('res-bmi').innerText}
-飲食目標：${document.getElementById('custom-diet-cal').value} kcal
-目標飲水：${document.getElementById('water-target').value} ml
-承諾：${document.getElementById('reflection').value}`;
+        const summary = `班級：${cls} | 座號：${no} | 姓名：${name} | Email：${email || '未填寫'}\nBMI：${document.getElementById('res-bmi').innerText}\n飲食目標：${document.getElementById('custom-diet-cal').value} kcal\n目標飲水：${document.getElementById('water-target').value} ml\n承諾：${document.getElementById('reflection').value}`;
 
         const element = document.getElementById('pdf-content');
-        
-        // 確保列印/轉檔時背景為純白，避免透明導致空白頁
         element.style.backgroundColor = "#ffffff";
 
+        // 🎯 直接在 opt 中明確指定檔名，確保變數正確帶入
         const fileNameStr = `${cls}_${no}_${name}_健康計畫單.pdf`;
-
-        // 優化版：精準控制分頁與防切斷的 PDF 設定參數
         const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4], // 四周維持適當邊距 (吋)
+            margin:       [0.4, 0.4, 0.4, 0.4],
             filename:     fileNameStr,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -2012,61 +1992,61 @@ BMI：${document.getElementById('res-bmi').innerText}
                 format: 'letter', 
                 orientation: 'portrait' 
             },
-            // 🎯 關鍵修正：透過 CSS 選擇器強制保護大標題、卡片與表格不被斷開
             pagebreak:    { 
                 mode: ['css', 'legacy'], 
                 avoid: ['.section-card', 'table', '.meal-box', 'tr', 'h2', 'h3'] 
             } 
         };
 
-        // 🎯 核心修正：使用 outputPdf('datauristring') 轉為 Base64 字串透過 fetch 上傳至 Google Apps Script 雲端
-        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfDataUri) {
-            const payload = {
-                className: cls,
-                studentNo: no,
-                studentName: name,
-                studentEmail: email,
-                fileName: fileNameStr,
-                summaryText: summary,
-                pdfBase64: pdfDataUri
-
-            };
-
-            // 📌 請在此處貼上您的 Google Apps Script 部署網址（https://script.google.com/...）
+        html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
             const gasUrl = 'https://script.google.com/macros/s/AKfycbxJne57O2rHVUpHNJC6ZUmF26niaScA9TDCsrSRnumrZDx6ruaQ4Zgrm7FLK2sG64np/exec';
+
+            
+            const payload = {
+            // 新舊名稱雙保險，讓 GAS 後端絕對抓得到
+            className: cls,
+            stuClass: cls,
+            studentNo: no,
+            stuNo: no,
+            studentName: name,
+            stuName: name,
+            studentEmail: email,
+            fileName: fileNameStr,
+            summaryText: summary,
+            pdfBase64: pdfBase64
+        };
+
             fetch(gasUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify(payload)
-            }).then(() => {
+            })
+            .then(() => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                document.getElementById('result-msg').innerHTML = `<span style="color:#276749;">✅ 已成功將 PDF 打包並上傳至老師雲端${email ? '，並已同步寄送副本至您的信箱 (' + email + ')' : ''}！檔案名稱：${fileNameStr}</span>`;
-                alert(`🎉【上傳成功】 
-
-您的健康計畫單已成功傳送至老師的雲端！
-檔案名稱：${fileNameStr}
-${email ? '副本已同時發送至您的信箱：' + email : '（未填寫 Email，若需副本請自行備份）'}
-
-請確認畫面下方顯示綠色打勾即完成繳交。`);
-            }).catch(err => {
+                
+                const msgDiv = document.getElementById('result-msg');
+                if (msgDiv) {
+                    msgDiv.style.color = "#276749";
+                    msgDiv.innerHTML = `✅ 已成功將 PDF 打包並上傳！檔案名稱：${fileNameStr}`;
+                }
+                alert(`🎉【上傳成功】\n\n您的健康計畫單已成功傳送至老師的雲端！\n檔案名稱：${fileNameStr}`);
+            })
+            .catch(err => {
                 overlay.style.display = 'none';
                 if (uploadBtn) uploadBtn.disabled = false;
-                alert(`❌【上傳失敗】
-
-連線至雲端伺服器時發生錯誤（原因：${err.message || '網路連線異常'}）。
-請檢查您的網路狀態，或直接使用「一鍵列印 / 匯出 PDF」按鈕備份檔案交給老師！`);
+                alert("上傳發生錯誤，請再試一次或截圖回報老師：" + (err.message || err));
             });
         }).catch(err => {
             overlay.style.display = 'none';
             if (uploadBtn) uploadBtn.disabled = false;
-            alert(`❌【PDF 產出失敗】
-
-在打包 PDF 時發生問題（原因：${err.message || '未知錯誤'}）。
-請重新整理頁面或直接使用「一鍵列印 / 匯出 PDF」按鈕備份。`);
+            alert("PDF 產出失敗：" + (err.message || err));
         });
     }
+
 </script>
 
 </body>
